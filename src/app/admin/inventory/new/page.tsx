@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { UploadCloud, X, Loader2, Save, AlertCircle, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://pathdiganta-book-hub-backend.vercel.app";
 
@@ -125,7 +126,7 @@ export default function AddNewBookPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if(images.length === 0) return alert("Validation Error: Please select at least one cover image asset.");
+    if(images.length === 0) return toast.error("Validation Error: Please select at least one cover image asset.");
     
     setIsUploading(true);
     try {
@@ -173,15 +174,15 @@ export default function AddNewBookPage() {
 
       if (data.success) {
         setIsUploading(false);
-        alert("Success: Book structurally generated and deployed to global catalog.");
+        toast.success("Success: Book structurally generated and deployed to global catalog.");
         router.push('/admin/inventory');
       } else {
-        alert(data.message || "Failed to add book");
+        toast.error(data.message || "Failed to add book");
         setIsUploading(false);
       }
     } catch (error: any) {
       console.error(error);
-      alert(error.message || "Asset pipeline failed. Check console for details.");
+      toast.error(error.message || "Asset pipeline failed. Check console for details.");
       setIsUploading(false);
     }
   };

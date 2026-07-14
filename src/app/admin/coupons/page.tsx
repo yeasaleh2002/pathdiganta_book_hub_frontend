@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Ticket, Plus, Tag, Gift, Truck, Users, Calendar, Search, Trash2, ShieldCheck, Activity, Check } from 'lucide-react';
 import ConfirmModal from '@/components/admin/ConfirmModal';
+import toast from 'react-hot-toast';
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://pathdiganta-book-hub-backend.vercel.app";
 
@@ -26,18 +27,10 @@ export default function PromotionalCouponsAdminPage() {
     code: '', type: 'PERCENTAGE', value: '', minSpend: '', validUntil: ''
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [cacheStatus, setCacheStatus] = useState<string | null>(null);
 
   // Modal State
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [couponToDelete, setCouponToDelete] = useState<string | null>(null);
-
-  const showToast = (message: string) => {
-    setCacheStatus(message);
-    setTimeout(() => {
-      setCacheStatus(null);
-    }, 2500);
-  };
 
   const fetchCoupons = async () => {
     try {
@@ -87,13 +80,13 @@ export default function PromotionalCouponsAdminPage() {
       if (data.success) {
         setIsBuilding(false);
         setNewCoupon({ code: '', type: 'PERCENTAGE', value: '', minSpend: '', validUntil: '' });
-        showToast("Coupon deployed to production!");
+        toast.success("Coupon deployed to production!");
         fetchCoupons();
       } else {
-        alert(data.message || "Failed to create coupon.");
+        toast.error(data.message || "Failed to create coupon.");
       }
     } catch (error) {
-      alert("An error occurred during coupon creation.");
+      toast.error("An error occurred during coupon creation.");
     } finally {
       setIsLoading(false);
     }
@@ -116,12 +109,12 @@ export default function PromotionalCouponsAdminPage() {
       
       if (data.success) {
         setCoupons(coupons.filter(c => c.id !== couponToDelete));
-        showToast("Coupon revoked permanently.");
+        toast.success("Coupon revoked permanently.");
       } else {
-        alert(data.message || "Failed to delete coupon.");
+        toast.error(data.message || "Failed to delete coupon.");
       }
     } catch (error) {
-      alert("An error occurred during coupon deletion.");
+      toast.error("An error occurred during coupon deletion.");
     } finally {
       setDeleteModalOpen(false);
       setCouponToDelete(null);
@@ -161,13 +154,6 @@ export default function PromotionalCouponsAdminPage() {
         }}
       />
       
-      {cacheStatus && (
-        <div className="fixed top-24 right-8 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 z-50 animate-in slide-in-from-right-10 fade-in duration-300">
-          <Check size={20} className="text-emerald-400 dark:text-emerald-600" />
-          <span className="font-bold text-sm tracking-wide">{cacheStatus}</span>
-        </div>
-      )}
-
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">

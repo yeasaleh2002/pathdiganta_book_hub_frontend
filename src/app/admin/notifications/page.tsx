@@ -3,15 +3,8 @@
 import React, { useState } from 'react';
 import { Bell, CheckCircle, AlertTriangle, Info, Trash2 } from 'lucide-react';
 
-const mockNotifications = [
-  { id: 1, type: 'alert', message: 'Low inventory detected for "The Art of Clean Code Architecture"', time: '2 hours ago', read: false },
-  { id: 2, type: 'info', message: 'New order #ORD-8891 received from customer', time: '5 hours ago', read: false },
-  { id: 3, type: 'success', message: 'Database backup completed successfully', time: '1 day ago', read: true },
-  { id: 4, type: 'info', message: 'System maintenance scheduled for next Saturday at 2:00 AM', time: '2 days ago', read: true },
-];
-
 export default function AdminNotificationsPage() {
-  const [notifications, setNotifications] = useState(mockNotifications);
+  const [notifications, setNotifications] = useState<any[]>([]);
 
   const markAsRead = (id: number) => {
     setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));

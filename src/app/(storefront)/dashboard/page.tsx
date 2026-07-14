@@ -7,11 +7,12 @@ import { ProfileTab } from '@/components/dashboard/ProfileTab';
 import { AddressTab } from '@/components/dashboard/AddressTab';
 import { OrdersTab } from '@/components/dashboard/OrdersTab';
 import { RewardsTab } from '@/components/dashboard/RewardsTab';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 
-export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState('orders');
+function DashboardContent() {
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'orders');
   const router = useRouter();
   const { user } = useAuthStore();
 
@@ -30,7 +31,6 @@ export default function DashboardPage() {
   ];
 
   return (
-    <ProtectedRoute>
       <div className="max-w-[1400px] mx-auto px-4 py-8 md:py-12 min-h-screen">
         
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
@@ -98,6 +98,15 @@ export default function DashboardPage() {
 
         </div>
       </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <ProtectedRoute>
+      <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+        <DashboardContent />
+      </React.Suspense>
     </ProtectedRoute>
   );
 }

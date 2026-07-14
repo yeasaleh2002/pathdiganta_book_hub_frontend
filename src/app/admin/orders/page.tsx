@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ShoppingCart, Search, Eye, X, MapPin, Truck, Link as LinkIcon, CheckCircle2, Package, XCircle, RotateCcw, ChevronRight, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://pathdiganta-book-hub-backend.vercel.app";
 
@@ -79,7 +80,7 @@ export default function OrdersAdminPage() {
     if (!activeOrder) return;
     
     if (newStatus === 'SHIPPED') {
-      if (!tempTracking) return alert("System Constraint: A tracking URL asset must be attached before an order can be officially flagged as SHIPPED.");
+      if (!tempTracking) return toast.error("System Constraint: A tracking URL asset must be attached before an order can be officially flagged as SHIPPED.");
     }
 
     try {
@@ -93,11 +94,12 @@ export default function OrdersAdminPage() {
       if (data.success) {
         setOrders(orders.map(o => o.id === activeOrder.id ? { ...o, orderStatus: newStatus, trackingLink: newStatus === 'SHIPPED' ? tempTracking : o.trackingLink } : o));
         setActiveOrder({ ...activeOrder, orderStatus: newStatus, trackingLink: newStatus === 'SHIPPED' ? tempTracking : activeOrder.trackingLink });
+        toast.success(`Order status updated to ${newStatus}`);
       } else {
-        alert(data.message || "Failed to update order status");
+        toast.error(data.message || "Failed to update order status");
       }
     } catch (error) {
-      alert("An error occurred while updating order status");
+      toast.error("An error occurred while updating order status");
     }
   };
 

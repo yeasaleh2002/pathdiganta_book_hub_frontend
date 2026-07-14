@@ -5,12 +5,14 @@ import Link from 'next/link';
 import { ShoppingCart, Star } from 'lucide-react';
 
 interface Book {
-  id: string;
+  id?: string;
+  _id?: string;
   title: string;
-  author: string;
+  author: any;
   price: number;
   originalPrice?: number;
-  coverImage: string;
+  coverImage?: string;
+  images?: string[];
   rating?: number;
 }
 
@@ -27,11 +29,15 @@ export const BookCard = ({ book }: { book: Book }) => {
   };
 
   return (
-    <Link href={`/book/${book.id}`} className="flex-none w-44 md:w-56 flex flex-col gap-3 p-3 md:p-4 border border-gray-100 dark:border-gray-800 rounded-xl shadow-sm hover:shadow-lg transition-all bg-white dark:bg-gray-900 group cursor-pointer snap-start relative overflow-hidden">
+    <Link href={`/book/${book._id || book.id}`} className="flex-none w-44 md:w-56 flex flex-col gap-3 p-3 md:p-4 border border-gray-100 dark:border-gray-800 rounded-xl shadow-sm hover:shadow-lg transition-all bg-white dark:bg-gray-900 group cursor-pointer snap-start relative overflow-hidden">
       <div className="relative w-full aspect-[2/3] bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
         {/* Placeholder for actual book cover image */}
         <div className="w-full h-full flex items-center justify-center text-center p-2 text-gray-400 bg-gray-200 dark:bg-gray-800">
-           <span className="text-xs font-semibold">{book.title}</span>
+           {book.images?.[0] || book.coverImage ? (
+             <img src={book.images?.[0] || book.coverImage} alt={book.title} className="w-full h-full object-cover" />
+           ) : (
+             <span className="text-xs font-semibold">{book.title}</span>
+           )}
         </div>
         {discount > 0 && (
           <span className="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-black px-2 py-1 rounded">
@@ -52,7 +58,7 @@ export const BookCard = ({ book }: { book: Book }) => {
           {book.title}
         </h3>
         <span className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">
-          {book.author}
+          {typeof book.author === 'object' && book.author !== null ? (book.author as any).name : book.author}
         </span>
         
         <div className="flex items-center gap-1 mt-2">

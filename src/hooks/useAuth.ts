@@ -28,7 +28,11 @@ export const useAuth = () => {
     if (!res.ok) {
       throw new Error(data.message || "OTP verification failed");
     }
-    // Do NOT save JWT token here so that the user is forced to log in
+    // Save JWT token after successful OTP verification so user is immediately logged in
+    if (data.token) {
+      localStorage.setItem('token', data.token);
+      useAuthStore.getState().setLoggedIn(true);
+    }
     return data;
   };
 

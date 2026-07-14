@@ -72,9 +72,15 @@ export default function LoginPage() {
         <VerificationModal 
           email={unverifiedEmail} 
           onClose={() => setShowVerification(false)} 
-          onSuccess={() => {
+          onSuccess={(data?: any) => {
             setShowVerification(false);
-            setServerError("Verification successful. Please log in.");
+            // Redirect based on role after OTP verification from login page
+            const role = data?.user?.role || data?.role;
+            if (role === 'ADMIN') {
+              router.push('/admin/dashboard');
+            } else {
+              router.push('/dashboard');
+            }
           }}
         />
       )}

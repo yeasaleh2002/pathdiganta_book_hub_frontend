@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Check, X, Search, Layers } from 'lucide-react';
 import ConfirmModal from '@/components/admin/ConfirmModal';
+import toast from 'react-hot-toast';
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://pathdiganta-book-hub-backend.vercel.app";
 
@@ -23,7 +24,6 @@ export default function CategoriesAdminPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [tempName, setTempName] = useState('');
   const [tempSlug, setTempSlug] = useState('');
-  const [cacheStatus, setCacheStatus] = useState<string | null>(null);
 
   // Modal State
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -55,13 +55,6 @@ export default function CategoriesAdminPage() {
   const totalPages = Math.ceil(filteredCategories.length / itemsPerPage) || 1;
   const paginatedCategories = filteredCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  const showToast = (message: string) => {
-    setCacheStatus(message);
-    setTimeout(() => {
-      setCacheStatus(null);
-    }, 2500);
-  };
-
   const handleSaveEdit = async (id: string) => {
     try {
       const token = localStorage.getItem('token');
@@ -74,13 +67,13 @@ export default function CategoriesAdminPage() {
       if (data.success) {
         setCategories(categories.map(c => c.id === id ? data.category : c));
         setEditingId(null);
-        showToast("Category updated successfully!");
+        toast.success("Category updated successfully!");
         fetchCategories();
       } else {
-        alert(data.message || "Update failed");
+        toast.error(data.message || "Update failed");
       }
     } catch (error) {
-      alert("An error occurred");
+      toast.error("An error occurred");
     }
   };
 
@@ -97,13 +90,13 @@ export default function CategoriesAdminPage() {
       if (data.success) {
         setCategories([data.category, ...categories]);
         setIsAdding(false);
-        showToast("Category created successfully!");
+        toast.success("Category created successfully!");
         fetchCategories();
       } else {
-        alert(data.message || "Creation failed");
+        toast.error(data.message || "Creation failed");
       }
     } catch (error) {
-      alert("An error occurred");
+      toast.error("An error occurred");
     }
   };
 
@@ -123,15 +116,15 @@ export default function CategoriesAdminPage() {
       const data = await res.json();
       if (data.success) {
         setCategories(categories.filter(c => c.id !== categoryToDelete));
-        showToast("Category deleted!");
+        toast.success("Category deleted!");
         const remainingItems = filteredCategories.length - 1;
         const newTotalPages = Math.ceil(remainingItems / itemsPerPage) || 1;
         if (currentPage > newTotalPages) setCurrentPage(newTotalPages);
       } else {
-        alert(data.message || "Deletion failed");
+        toast.error(data.message || "Deletion failed");
       }
     } catch (error) {
-      alert("An error occurred");
+      toast.error("An error occurred");
     } finally {
       setDeleteModalOpen(false);
       setCategoryToDelete(null);
@@ -153,14 +146,6 @@ export default function CategoriesAdminPage() {
           setCategoryToDelete(null);
         }}
       />
-      
-      {/* Toast Alert System for Cache purging */}
-      {cacheStatus && (
-        <div className="fixed top-24 right-8 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 z-50 animate-in slide-in-from-right-10 fade-in duration-300">
-          <Check size={20} className="text-emerald-400 dark:text-emerald-600" />
-          <span className="font-bold text-sm tracking-wide">{cacheStatus}</span>
-        </div>
-      )}
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>

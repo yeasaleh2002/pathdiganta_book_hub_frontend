@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Megaphone, Search, PackagePlus, Tag, Plus, Check, X, Trash2, ArrowLeft, Loader2 } from 'lucide-react';
 import ConfirmModal from '@/components/admin/ConfirmModal';
+import toast from 'react-hot-toast';
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://pathdiganta-book-hub-backend.vercel.app";
 
@@ -67,8 +68,8 @@ export default function PromotionsAdminPage() {
 
   const handleCreateBundle = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedBooks.length < 2) return alert("System Error: A bundle configuration strictly requires at least 2 titles.");
-    if (Number(bundleData.discountPrice) >= standardTotal) return alert("System Error: The Override Combo Price must strictly be lower than the Standard MSRP Total to constitute a valid promotion.");
+    if (selectedBooks.length < 2) return toast.error("System Error: A bundle configuration strictly requires at least 2 titles.");
+    if (Number(bundleData.discountPrice) >= standardTotal) return toast.error("System Error: The Override Combo Price must strictly be lower than the Standard MSRP Total to constitute a valid promotion.");
     
     try {
       const token = localStorage.getItem('token');
@@ -89,16 +90,16 @@ export default function PromotionsAdminPage() {
       });
       const data = await res.json();
       if (data.success) {
-        alert(`Promotion Blueprint Compiled! Combo Bundle "${bundleData.title}" successfully deployed to the matrix.`);
+        toast.success(`Promotion Blueprint Compiled! Combo Bundle "${bundleData.title}" successfully deployed to the matrix.`);
         setSelectedBooks([]);
         setBundleData({ title: '', description: '', discountPrice: '' });
         setView('list');
         fetchCombos();
       } else {
-        alert(data.message || "Failed to create combo");
+        toast.error(data.message || "Failed to create combo");
       }
     } catch (err: any) {
-      alert("Error creating combo: " + err.message);
+      toast.error("Error creating combo: " + err.message);
     }
   };
 
@@ -114,13 +115,14 @@ export default function PromotionsAdminPage() {
       if (data.success) {
         setDeleteModalOpen(false);
         setComboToDelete(null);
+        toast.success("Combo deleted successfully");
         fetchCombos();
       } else {
-        alert(data.message || "Failed to delete combo");
+        toast.error(data.message || "Failed to delete combo");
       }
     } catch (e) {
       console.error(e);
-      alert("Failed to delete combo");
+      toast.error("Failed to delete combo");
     }
   };
 

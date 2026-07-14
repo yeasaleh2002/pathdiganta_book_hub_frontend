@@ -18,7 +18,7 @@ type OtpFormValues = z.infer<typeof otpSchema>;
 interface VerificationModalProps {
   email: string;
   onClose: () => void;
-  onSuccess?: () => void;
+  onSuccess?: (data?: any) => void;
 }
 
 export const VerificationModal = ({ email, onClose, onSuccess }: VerificationModalProps) => {
@@ -30,14 +30,16 @@ export const VerificationModal = ({ email, onClose, onSuccess }: VerificationMod
     resolver: zodResolver(otpSchema),
   });
 
-  const onSubmit = async (data: OtpFormValues) => {
+  const onSubmit = async (formData: OtpFormValues) => {
     setServerError("");
     try {
-      await verifyRegistration(email, data.otp);
+      const responseData = await verifyRegistration(email, formData.otp);
       if (onSuccess) {
-        onSuccess();
+        onSuccess(responseData);
       } else {
-        router.push('/login');
+        // Fallback: redirect by role
+        const role = responseData?.user?.role || responseData?.role;
+        router.push(role === 'ADMIN' ? '/admin/dashboard' : '/dashboard');
       }
     } catch (err: any) {
       setServerError(err.message || "Invalid OTP. Please try again.");

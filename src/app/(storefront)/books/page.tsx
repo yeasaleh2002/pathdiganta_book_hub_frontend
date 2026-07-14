@@ -9,40 +9,45 @@ export const metadata = {
   title: 'Explorer | Pathdigonto Book Hub',
 };
 
-// Mock data fetcher reflecting Next.js 14 API interaction
-const fetchBooks = async (params: any) => {
-  // Simulate network delay to showcase Suspense boundary shift
-  await new Promise(resolve => setTimeout(resolve, 800));
-  
-  const page = Number(params.page) || 1;
-  const limit = 12;
-  const totalItems = 45; 
-  const totalPages = Math.ceil(totalItems / limit);
-  
-  // Calculate if any books exist based on mock page
-  if (page > totalPages) {
-      return { data: [], meta: { currentPage: page, totalPages, hasNextPage: false, totalItems } };
-  }
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://pathdiganta-book-hub-backend.vercel.app";
 
-  const books = Array.from({ length: page === totalPages ? totalItems % limit || limit : limit }).map((_, i) => ({
-    id: `explore-${page}-${i}`,
-    title: `${params.category || 'Amazing'} Book Title ${i + 1 + (page - 1) * limit}`,
-    author: params.author ? params.author.split(',')[0] : "Famous Author",
-    price: 350 + (i * 10),
-    originalPrice: 400 + (i * 10),
-    coverImage: "",
-    rating: 4.5 + (Math.random() * 0.5)
-  }));
+const fetchBooks = async (params: any) => {
+  const query = new URLSearchParams();
   
-  return {
-    data: books,
-    meta: {
-      currentPage: page,
-      totalPages: totalPages,
-      hasNextPage: page < totalPages,
-      totalItems: totalItems
+  if (params.page) query.append('page', params.page);
+  if (params.limit) query.append('limit', params.limit);
+  if (params.search) query.append('search', params.search);
+  if (params.category) query.append('category', params.category);
+  if (params.author) query.append('author', params.author);
+  if (params.publisher) query.append('publisher', params.publisher);
+  if (params.minPrice) query.append('minPrice', params.minPrice);
+  if (params.maxPrice) query.append('maxPrice', params.maxPrice);
+  if (params.sortBy) query.append('sortBy', params.sortBy);
+  if (params.sortOrder) query.append('sortOrder', params.sortOrder);
+
+  try {
+    const res = await fetch(`${API_URL}/api/v1/books?${query.toString()}`, {
+      next: { revalidate: 60 } // Cache for 60 seconds
+    });
+    const data = await res.json();
+    
+    if (data.success) {
+      return {
+        data: data.books,
+        meta: {
+          currentPage: data.meta.currentPage,
+          totalPages: data.meta.totalPages,
+          hasNextPage: data.meta.currentPage < data.meta.totalPages,
+          totalItems: data.meta.total
+        }
+      };
     }
-  };
+  } catch (error) {
+    console.error("Failed to fetch books", error);
+  }
+  
+  // Return empty fallback if failed
+  return { data: [], meta: { currentPage: 1, totalPages: 1, hasNextPage: false, totalItems: 0 } };
 };
 
 const BookGridResults = async ({ searchParams }: { searchParams: any }) => {
@@ -62,7 +67,7 @@ const BookGridResults = async ({ searchParams }: { searchParams: any }) => {
     <>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
         {result.data.map((book: any) => (
-          <BookCard key={book.id} book={book} />
+          <BookCard key={book.id || book._id} book={{...book, id: book.id || book._id}} />
         ))}
       </div>
       <Pagination 
@@ -74,12 +79,13 @@ const BookGridResults = async ({ searchParams }: { searchParams: any }) => {
   );
 };
 
-export default function BooksExplorerPage({
+export default async function BooksExplorerPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined }
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
-  const searchQuery = searchParams.search as string;
+  const resolvedParams = await searchParams;
+  const searchQuery = resolvedParams.search as string;
 
   return (
     <div className="max-w-[1400px] mx-auto px-4 py-8">
@@ -103,10 +109,10 @@ export default function BooksExplorerPage({
         {/* Main Grid Content wrapped in Suspense for loading state shifts */}
         <div className="flex-1 w-full min-w-0">
           <Suspense 
-            key={JSON.stringify(searchParams)} 
+            key={JSON.stringify(resolvedParams)} 
             fallback={<GridSkeleton />}
           >
-            <BookGridResults searchParams={searchParams} />
+            <BookGridResults searchParams={resolvedParams} />
           </Suspense>
         </div>
       </div>

@@ -7,30 +7,65 @@ import { ImageGallery } from '@/components/book/ImageGallery';
 import { BookTabs } from '@/components/book/BookTabs';
 import { BundleRow } from '@/components/book/BundleRow';
 import { BookShelf } from '@/components/modules/BookShelf';
-import { fetchBookById, generateMockBooks } from '@/utils/mockData';
 import { Star } from 'lucide-react';
 import Link from 'next/link';
 
-// 1. Next.js SEO Metadata API Implementation
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://pathdiganta-book-hub-backend.vercel.app";
+
+async function fetchBookById(id: string) {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/books/${id}`, { next: { revalidate: 60 } });
+    const data = await res.json();
+    if (data.success) return data.book;
+  } catch (error) {
+    console.error("Error fetching book details", error);
+  }
+  return null;
+}
+
+async function fetchRelatedBooks(categoryId: string, excludeId: string) {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/books?limit=6`, { next: { revalidate: 60 } });
+    const data = await res.json();
+    if (data.success) return data.books.filter((b: any) => b.id !== excludeId || b._id !== excludeId).slice(0, 6);
+  } catch (error) {
+    console.error("Error fetching related books", error);
+  }
+  return [];
+}
+
+async function fetchCombos() {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/combos`, { next: { revalidate: 60 } });
+    const data = await res.json();
+    // Return first combo or mock something if combos don't have exactly books array 
+    if (data.success && data.combos.length > 0) return data.combos[0].comboItems?.map((item: any) => item.book) || [];
+  } catch (error) {
+    console.error("Error fetching combos", error);
+  }
+  return [];
+}
+
 export async function generateMetadata(
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const book = await fetchBookById(params.id);
+  const { id } = await params;
+  const book = await fetchBookById(id);
   if (!book) return { title: 'Book Not Found' };
 
   return {
-    title: `${book.title} by ${book.author} | Pathdigonto Book Hub`,
-    description: book.shortDescription,
-    keywords: [book.title, book.author, book.publisher, book.category, ...book.tags],
+    title: `${book.title} | Pathdigonto Book Hub`,
+    description: book.description?.slice(0, 160) || "Explore books at Pathdigonto Book Hub.",
+    keywords: [book.title, book.author?.name || "Author", book.publisher?.name || "Publisher"],
     openGraph: {
       title: `${book.title} - Pathdigonto Book Hub`,
-      description: book.shortDescription,
-      url: `https://pathdigontobookhub.com/book/${book.id}`,
+      description: book.description?.slice(0, 160) || "",
+      url: `https://pathdigontobookhub.com/book/${book._id || book.id}`,
       siteName: 'Pathdigonto Book Hub',
       images: [
         {
-          url: book.images[0],
+          url: book.images?.[0] || 'https://placehold.co/600x900',
           width: 800,
           height: 1200,
           alt: book.title,
@@ -41,28 +76,27 @@ export async function generateMetadata(
   };
 }
 
-export default async function BookDetailsPage({ params }: { params: { id: string } }) {
-  const book = await fetchBookById(params.id);
+export default async function BookDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const book = await fetchBookById(id);
   if (!book) notFound();
 
-  // Mock related data blocks
-  const bundleBooks = generateMockBooks("Bundle", 2);
-  const relatedBooks = generateMockBooks("Related", 6);
+  const bundleBooks = await fetchCombos();
+  const relatedBooks = await fetchRelatedBooks(book.category?._id || book.categoryId, book._id || book.id);
 
-  // 2. Strict JSON-LD Schema structures for Book SEO
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Book',
     name: book.title,
-    author: { '@type': 'Person', name: book.author },
-    publisher: { '@type': 'Organization', name: book.publisher },
+    author: { '@type': 'Person', name: book.author?.name || "Unknown" },
+    publisher: { '@type': 'Organization', name: book.publisher?.name || "Unknown" },
     isbn: book.isbn,
-    numberOfPages: book.pages,
+    numberOfPages: book.pages || 0,
     offers: {
       '@type': 'Offer',
       price: book.price,
       priceCurrency: 'BDT',
-      availability: book.inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      availability: book.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
     }
   };
 
@@ -72,56 +106,49 @@ export default async function BookDetailsPage({ params }: { params: { id: string
 
   return (
     <div className="w-full bg-white dark:bg-gray-950 pb-16">
-      {/* Inject JSON-LD directly into the HTML head equivalent */}
       <Script id="json-ld" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       
-      {/* Breadcrumbs */}
       <div className="border-b border-gray-100 dark:border-gray-900 bg-gray-50/50 dark:bg-gray-950/50">
         <div className="max-w-7xl mx-auto px-4 py-3 text-xs text-gray-500 dark:text-gray-400 font-medium">
-          Home <span className="mx-2">/</span> Books <span className="mx-2">/</span> {book.category} <span className="mx-2">/</span> <span className="text-blue-600 dark:text-blue-400 font-semibold">{book.title}</span>
+          Home <span className="mx-2">/</span> Books <span className="mx-2">/</span> {book.category?.name || "Category"} <span className="mx-2">/</span> <span className="text-blue-600 dark:text-blue-400 font-semibold">{book.title}</span>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 pt-10">
-         {/* Top Layout: Images & Metadata */}
          <div className="flex flex-col lg:flex-row gap-10 lg:gap-14 mb-16">
            
-           {/* Left: Image Gallery */}
            <div className="w-full lg:w-[420px] flex-shrink-0">
-             <ImageGallery images={book.images} />
+             <ImageGallery images={book.images || ['https://placehold.co/600x900']} />
            </div>
            
-           {/* Right: Metadata & Actions */}
            <div className="flex-1 flex flex-col">
              
-             {/* Title & Author Strip */}
              <div className="mb-6 pb-6 border-b border-gray-100 dark:border-gray-800">
                 <div className="flex justify-between items-start gap-4">
                   <h1 className="text-2xl md:text-4xl font-extrabold text-gray-900 dark:text-white leading-tight">
                     {book.title}
                   </h1>
                   <div className="flex gap-2 flex-shrink-0">
-                    <button className="p-2.5 text-gray-400 hover:text-red-500 bg-gray-50 dark:bg-gray-900 rounded-full transition-colors border border-gray-200 dark:border-gray-800 hover:border-red-200 hover:bg-red-50 dark:hover:bg-red-900/20 shadow-sm">
+                    <button className="p-2.5 text-gray-400 hover:text-red-500 bg-gray-50 dark:bg-gray-900 rounded-full transition-colors border border-gray-200 dark:border-gray-800 hover:border-red-200 hover:bg-red-50 dark:hover:bg-red-900/20 shadow-sm cursor-pointer">
                       <Heart size={20} />
                     </button>
-                    <button className="p-2.5 text-gray-400 hover:text-blue-500 bg-gray-50 dark:bg-gray-900 rounded-full transition-colors border border-gray-200 dark:border-gray-800 hover:border-blue-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 shadow-sm">
+                    <button className="p-2.5 text-gray-400 hover:text-blue-500 bg-gray-50 dark:bg-gray-900 rounded-full transition-colors border border-gray-200 dark:border-gray-800 hover:border-blue-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 shadow-sm cursor-pointer">
                       <Share2 size={20} />
                     </button>
                   </div>
                 </div>
                 
                 <p className="text-lg text-gray-600 dark:text-gray-400 mt-3">
-                  by <Link href={`/books?author=${encodeURIComponent(book.author)}`} className="font-bold text-blue-600 dark:text-blue-400 hover:underline">{book.author}</Link>
+                  by <Link href={`/books?author=${encodeURIComponent(book.author?.name || "")}`} className="font-bold text-blue-600 dark:text-blue-400 hover:underline">{book.author?.name}</Link>
                 </p>
                 <div className="flex items-center gap-4 mt-4">
                   <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-500 px-2.5 py-1 rounded text-xs font-bold border border-amber-200 dark:border-amber-800/50">
-                    <Star size={12} className="fill-amber-500 text-amber-500" /> {book.rating}
+                    <Star size={12} className="fill-amber-500 text-amber-500" /> {book.rating || 0}
                   </div>
-                  <span className="text-sm font-semibold text-blue-600 hover:underline cursor-pointer">{book.reviewsCount} Reviews</span>
+                  <span className="text-sm font-semibold text-blue-600 hover:underline cursor-pointer">{book.reviewsCount || 0} Reviews</span>
                 </div>
              </div>
 
-             {/* Pricing & Stock Alert */}
              <div className="mb-8 p-6 bg-blue-50/30 dark:bg-gray-900/30 rounded-2xl border border-blue-50 dark:border-gray-800">
                <div className="flex items-end gap-3 mb-3">
                  <span className="text-4xl md:text-5xl font-black text-blue-600 dark:text-blue-400">৳{book.price}</span>
@@ -135,7 +162,7 @@ export default async function BookDetailsPage({ params }: { params: { id: string
                  )}
                </div>
                
-               {book.inStock ? (
+               {book.stock > 0 ? (
                  <span className="inline-flex items-center gap-1.5 text-sm font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 rounded-full border border-emerald-100 dark:border-emerald-800/50">
                    <CheckCircle2 size={16} /> In Stock (Ready to ship)
                  </span>
@@ -146,59 +173,58 @@ export default async function BookDetailsPage({ params }: { params: { id: string
                )}
              </div>
 
-             {/* Action Buttons */}
              <div className="flex flex-col sm:flex-row gap-4 mb-10">
                <button 
-                 disabled={!book.inStock}
-                 className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-4 px-6 rounded-xl font-bold text-lg transition-all shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+                 disabled={book.stock <= 0}
+                 className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-4 px-6 rounded-xl font-bold text-lg transition-all shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none cursor-pointer"
                >
                  <ShoppingCart size={22} /> Add to Cart
                </button>
                <button 
-                 disabled={!book.inStock}
-                 className="flex-1 flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white py-4 px-6 rounded-xl font-bold text-lg transition-all shadow-[0_4px_14px_0_rgba(249,115,22,0.39)] hover:shadow-[0_6px_20px_rgba(249,115,22,0.23)] hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+                 disabled={book.stock <= 0}
+                 className="flex-1 flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white py-4 px-6 rounded-xl font-bold text-lg transition-all shadow-[0_4px_14px_0_rgba(249,115,22,0.39)] hover:shadow-[0_6px_20px_rgba(249,115,22,0.23)] hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none cursor-pointer"
                >
                  <Zap size={22} className="fill-white" /> Buy Now
                </button>
              </div>
 
-             {/* High-fidelity Metadata Spec Grid */}
              <div className="grid grid-cols-2 sm:grid-cols-4 gap-y-6 gap-x-4 p-6 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800">
                <div className="flex flex-col gap-1.5">
                  <span className="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider">Publisher</span>
-                 <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 line-clamp-1">{book.publisher}</span>
+                 <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 line-clamp-1">{book.publisher?.name || 'N/A'}</span>
                </div>
                <div className="flex flex-col gap-1.5">
                  <span className="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider">ISBN</span>
-                 <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{book.isbn}</span>
+                 <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{book.isbn || 'N/A'}</span>
                </div>
                <div className="flex flex-col gap-1.5">
                  <span className="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider">Edition</span>
-                 <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{book.edition}</span>
+                 <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{book.edition || '1st'}</span>
                </div>
                <div className="flex flex-col gap-1.5">
-                 <span className="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider">Pages/Weight</span>
-                 <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{book.pages}p, {book.weight}</span>
+                 <span className="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider">Pages</span>
+                 <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{book.pages || 0}p</span>
                </div>
              </div>
 
            </div>
          </div>
 
-         {/* 2. Bundle Block */}
-         <div className="mb-14">
-           <BundleRow mainBook={book} bundleBooks={bundleBooks} />
-         </div>
+         {bundleBooks.length > 0 && (
+           <div className="mb-14">
+             <BundleRow mainBook={book} bundleBooks={bundleBooks} />
+           </div>
+         )}
 
-         {/* 3. Deep Dive Tabs */}
          <div className="mb-16">
-           <BookTabs description={book.description} authorBio={book.authorBio} />
+           <BookTabs description={book.description} authorBio={book.author?.bio || 'No author biography available.'} />
          </div>
 
-         {/* 4. Related Products */}
-         <div className="pt-10 border-t border-gray-200 dark:border-gray-800">
-           <BookShelf title="Customers Also Bought" viewAllLink={`/category/${book.category.toLowerCase()}`} books={relatedBooks} />
-         </div>
+         {relatedBooks.length > 0 && (
+           <div className="pt-10 border-t border-gray-200 dark:border-gray-800">
+             <BookShelf title="Customers Also Bought" viewAllLink={`/books?category=${book.category?.name}`} books={relatedBooks} />
+           </div>
+         )}
 
       </div>
     </div>

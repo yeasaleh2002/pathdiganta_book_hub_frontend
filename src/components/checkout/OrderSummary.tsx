@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useCartStore } from '@/store/cartStore';
 import { Tag, Gift, CheckCircle2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export const OrderSummary = () => {
   const { items } = useCartStore();
@@ -21,8 +22,9 @@ export const OrderSummary = () => {
     e.preventDefault();
     if (coupon.toUpperCase() === 'NURIX10') {
       setDiscount(subtotal * 0.1);
+      toast.success("Coupon applied successfully!");
     } else {
-      alert("Invalid or expired coupon code.");
+      toast.error("Invalid or expired coupon code.");
     }
   };
 

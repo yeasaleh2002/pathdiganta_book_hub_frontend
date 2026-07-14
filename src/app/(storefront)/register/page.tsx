@@ -33,8 +33,8 @@ export default function RegisterPage() {
     setServerError("");
     try {
       await authRegister(data.name, data.email, data.password);
-      // Backend automatically redirects logic flow after OTP
-      router.push('/login');
+      // Redirect to OTP verification page; email is passed as query param
+      router.push(`/verify-otp?email=${encodeURIComponent(data.email)}`);
     } catch (err: any) {
       setServerError(err.message || "Registration failed. Please try again.");
     }

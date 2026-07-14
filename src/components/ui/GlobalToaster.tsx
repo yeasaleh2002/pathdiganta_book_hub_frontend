@@ -1,9 +1,20 @@
 "use client";
 
 import React from "react";
+import { Toaster } from 'react-hot-toast';
 
-// This is a placeholder for the global toaster component.
-// It is dynamically imported in the RootLayout.
 export const GlobalToaster = () => {
-  return null;
+  return (
+    <Toaster 
+      position="top-right" 
+      toastOptions={{
+        className: 'dark:bg-gray-800 dark:text-white border dark:border-gray-700 shadow-xl',
+        duration: 4000,
+        style: {
+          borderRadius: '12px',
+          padding: '16px',
+        }
+      }} 
+    />
+  );
 };

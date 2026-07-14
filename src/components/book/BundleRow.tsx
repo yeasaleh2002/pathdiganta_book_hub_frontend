@@ -14,16 +14,16 @@ export const BundleRow = ({ mainBook, bundleBooks }: any) => {
           {/* Main Book */}
           <div className="w-24 md:w-28 h-36 md:h-40 flex-shrink-0 rounded-lg shadow-sm overflow-hidden border-2 border-blue-600 snap-center relative">
             <span className="absolute top-0 left-0 bg-blue-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-br">This Item</span>
-            <img src={mainBook.images[0]} alt={mainBook.title} className="w-full h-full object-cover" />
+            <img src={mainBook.imageUrls?.[0] || mainBook.images?.[0] || 'https://placehold.co/400x600'} alt={mainBook.title} className="w-full h-full object-cover" />
           </div>
           
           <Plus className="text-gray-400 dark:text-gray-600 flex-shrink-0" size={24} />
 
           {/* Bundle Items */}
           {bundleBooks.map((book: any, idx: number) => (
-            <React.Fragment key={book.id}>
-              <Link href={`/book/${book.id}`} className="w-24 md:w-28 h-36 md:h-40 flex-shrink-0 rounded-lg shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-blue-500 transition-colors snap-center">
-                <img src={book.coverImage} alt={book.title} className="w-full h-full object-cover" />
+            <React.Fragment key={book._id || book.id}>
+              <Link href={`/book/${book._id || book.id}`} className="w-24 md:w-28 h-36 md:h-40 flex-shrink-0 rounded-lg shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-blue-500 transition-colors snap-center">
+                <img src={book.imageUrls?.[0] || book.images?.[0] || book.coverImage || 'https://placehold.co/400x600'} alt={book.title} className="w-full h-full object-cover" />
               </Link>
               {idx < bundleBooks.length - 1 && <Plus className="text-gray-400 dark:text-gray-600 flex-shrink-0" size={24} />}
             </React.Fragment>
