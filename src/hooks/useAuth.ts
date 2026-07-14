@@ -1,5 +1,7 @@
 "use client";
 
+import { useAuthStore } from '@/store/authStore';
+
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://pathdiganta-book-hub-backend.vercel.app";
 
 export const useAuth = () => {
@@ -46,6 +48,7 @@ export const useAuth = () => {
     
     if (data.token) {
       localStorage.setItem('token', data.token);
+      useAuthStore.getState().setLoggedIn(true);
     }
     return data;
   };
@@ -62,12 +65,14 @@ export const useAuth = () => {
     }
     if (data.token) {
       localStorage.setItem('token', data.token);
+      useAuthStore.getState().setLoggedIn(true);
     }
     return data;
   };
 
   const logout = () => {
     localStorage.removeItem('token');
+    useAuthStore.getState().setLoggedIn(false);
     window.location.href = '/login';
   };
 

@@ -1,17 +1,22 @@
 "use client";
 
-import React, { useState } from 'react';
-import { Plus, Edit2, Trash2, Check, X, Search, Layers, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plus, Edit2, Trash2, Check, X, Search, Layers } from 'lucide-react';
+import ConfirmModal from '@/components/admin/ConfirmModal';
 
-const initialCategories = [
-  { id: '1', name: 'Islamic Books', slug: 'islamic-books', activeCount: 124 },
-  { id: '2', name: 'Programming', slug: 'programming', activeCount: 89 },
-  { id: '3', name: 'Novels', slug: 'novels', activeCount: 412 },
-  { id: '4', name: 'Self Help', slug: 'self-help', activeCount: 65 },
-];
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://pathdiganta-book-hub-backend.vercel.app";
+
+type Category = {
+  id: string;
+  name: string;
+  slug: string;
+  _count?: {
+    books: number;
+  };
+};
 
 export default function CategoriesAdminPage() {
-  const [categories, setCategories] = useState(initialCategories);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [search, setSearch] = useState('');
   
   const [isAdding, setIsAdding] = useState(false);
@@ -20,49 +25,139 @@ export default function CategoriesAdminPage() {
   const [tempSlug, setTempSlug] = useState('');
   const [cacheStatus, setCacheStatus] = useState<string | null>(null);
 
+  // Modal State
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/v1/categories`);
+      const data = await res.json();
+      if (data.success) {
+        setCategories(data.categories);
+      }
+    } catch (error) {
+      console.error("Failed to fetch categories", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
   const filteredCategories = categories.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
 
-  const triggerCacheRefresh = () => {
-    // Structural simulation of server-side caching purge e.g. revalidateTag('categories')
-    setCacheStatus("Synchronizing global header navigation cache...");
+  // Calculate Pagination
+  const totalPages = Math.ceil(filteredCategories.length / itemsPerPage) || 1;
+  const paginatedCategories = filteredCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const showToast = (message: string) => {
+    setCacheStatus(message);
     setTimeout(() => {
       setCacheStatus(null);
     }, 2500);
   };
 
-  const handleSaveEdit = (id: string) => {
-    setCategories(categories.map(c => c.id === id ? { ...c, name: tempName, slug: tempSlug } : c));
-    setEditingId(null);
-    triggerCacheRefresh();
-  };
-
-  const handleAddNew = (e: React.FormEvent) => {
-    e.preventDefault();
-    const newCat = {
-      id: Math.random().toString(),
-      name: tempName,
-      slug: tempSlug || tempName.toLowerCase().replace(/ /g, '-'),
-      activeCount: 0
-    };
-    setCategories([newCat, ...categories]);
-    setIsAdding(false);
-    triggerCacheRefresh();
-  };
-
-  const handleDelete = (id: string) => {
-    if(confirm("DANGER: Are you sure you want to delete this category node? This will orphan all attached inventory items.")) {
-      setCategories(categories.filter(c => c.id !== id));
-      triggerCacheRefresh();
+  const handleSaveEdit = async (id: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/v1/admin/categories/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ name: tempName, slug: tempSlug })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCategories(categories.map(c => c.id === id ? data.category : c));
+        setEditingId(null);
+        showToast("Category updated successfully!");
+        fetchCategories();
+      } else {
+        alert(data.message || "Update failed");
+      }
+    } catch (error) {
+      alert("An error occurred");
     }
   };
+
+  const handleAddNew = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/v1/admin/categories`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ name: tempName, slug: tempSlug })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCategories([data.category, ...categories]);
+        setIsAdding(false);
+        showToast("Category created successfully!");
+        fetchCategories();
+      } else {
+        alert(data.message || "Creation failed");
+      }
+    } catch (error) {
+      alert("An error occurred");
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    setCategoryToDelete(id);
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!categoryToDelete) return;
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/v1/admin/categories/${categoryToDelete}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCategories(categories.filter(c => c.id !== categoryToDelete));
+        showToast("Category deleted!");
+        const remainingItems = filteredCategories.length - 1;
+        const newTotalPages = Math.ceil(remainingItems / itemsPerPage) || 1;
+        if (currentPage > newTotalPages) setCurrentPage(newTotalPages);
+      } else {
+        alert(data.message || "Deletion failed");
+      }
+    } catch (error) {
+      alert("An error occurred");
+    } finally {
+      setDeleteModalOpen(false);
+      setCategoryToDelete(null);
+    }
+  };
+
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 max-w-6xl">
       
+      <ConfirmModal 
+        isOpen={deleteModalOpen}
+        title="Delete Category Node?"
+        message="DANGER: Are you sure you want to delete this category node? This will orphan all attached inventory items and cannot be undone."
+        confirmText="Yes, Delete Node"
+        onConfirm={confirmDelete}
+        onCancel={() => {
+          setDeleteModalOpen(false);
+          setCategoryToDelete(null);
+        }}
+      />
+      
       {/* Toast Alert System for Cache purging */}
       {cacheStatus && (
         <div className="fixed top-24 right-8 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 z-50 animate-in slide-in-from-right-10 fade-in duration-300">
-          <RefreshCw size={20} className="animate-spin text-blue-400 dark:text-blue-600" />
+          <Check size={20} className="text-emerald-400 dark:text-emerald-600" />
           <span className="font-bold text-sm tracking-wide">{cacheStatus}</span>
         </div>
       )}
@@ -99,21 +194,21 @@ export default function CategoriesAdminPage() {
         </form>
       )}
 
-      <div className="bg-white dark:bg-[#121212] border-2 border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-[#121212] border-2 border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm overflow-hidden flex flex-col min-h-[500px]">
         <div className="p-6 md:p-8 border-b-2 border-gray-100 dark:border-gray-800 flex items-center bg-gray-50/50 dark:bg-gray-900/50">
           <div className="relative w-full max-w-md">
             <Search size={18} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input 
               type="text" 
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
               placeholder="Search taxonomy matrix..." 
               className="w-full pl-11 pr-4 py-3 bg-white dark:bg-gray-950 border-2 border-gray-200 dark:border-gray-700 rounded-xl text-sm font-bold outline-none focus:border-blue-500 text-gray-900 dark:text-white transition-colors"
             />
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto flex-1">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-50/80 dark:bg-gray-900/80 border-b-2 border-gray-200 dark:border-gray-800">
@@ -124,7 +219,7 @@ export default function CategoriesAdminPage() {
               </tr>
             </thead>
             <tbody className="divide-y-2 divide-gray-50 dark:divide-gray-800/50 text-sm">
-              {filteredCategories.map((cat) => (
+              {paginatedCategories.map((cat) => (
                 <tr key={cat.id} className="hover:bg-gray-50 dark:hover:bg-gray-900/40 transition-colors group">
                   <td className="px-8 py-5">
                     {editingId === cat.id ? (
@@ -141,7 +236,7 @@ export default function CategoriesAdminPage() {
                     )}
                   </td>
                   <td className="px-8 py-5 text-center font-black text-lg text-blue-600 dark:text-blue-500">
-                    {cat.activeCount}
+                    {cat._count?.books || 0}
                   </td>
                   <td className="px-8 py-5">
                     <div className="flex justify-end gap-3 opacity-60 group-hover:opacity-100 transition-opacity">
@@ -160,7 +255,7 @@ export default function CategoriesAdminPage() {
                   </td>
                 </tr>
               ))}
-              {filteredCategories.length === 0 && (
+              {paginatedCategories.length === 0 && (
                 <tr>
                   <td colSpan={4} className="px-8 py-16 text-center text-gray-500 font-bold text-lg">No category nodes matched your query matrix.</td>
                 </tr>
@@ -168,6 +263,41 @@ export default function CategoriesAdminPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Advanced Pagination UI */}
+        <div className="p-6 md:p-8 border-t-2 border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 flex flex-col sm:flex-row justify-between items-center gap-6">
+          <p className="text-sm font-bold text-gray-500 uppercase tracking-widest">
+            Showing <span className="text-gray-900 dark:text-white mx-1">{(currentPage - 1) * itemsPerPage + (paginatedCategories.length > 0 ? 1 : 0)}</span> to <span className="text-gray-900 dark:text-white mx-1">{Math.min(currentPage * itemsPerPage, filteredCategories.length)}</span> of <span className="text-gray-900 dark:text-white mx-1">{filteredCategories.length}</span> categories
+          </p>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="px-5 py-2.5 bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl font-black text-xs uppercase tracking-widest text-gray-700 dark:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:border-blue-500 transition-colors"
+            >
+              Previous
+            </button>
+            <div className="flex gap-1.5 items-center px-3">
+              {[...Array(totalPages)].map((_, i) => (
+                <button 
+                  key={i}
+                  onClick={() => setCurrentPage(i + 1)}
+                  className={`w-10 h-10 rounded-xl font-black text-sm transition-transform active:scale-95 ${currentPage === i + 1 ? 'bg-blue-600 text-white shadow-[0_4px_14px_0_rgba(37,99,235,0.39)]' : 'text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-800'}`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+            <button 
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages || totalPages === 0}
+              className="px-5 py-2.5 bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl font-black text-xs uppercase tracking-widest text-gray-700 dark:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:border-blue-500 transition-colors"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
   );

@@ -3,8 +3,9 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Library, Boxes, ShoppingCart, Megaphone, Settings, Store, X } from 'lucide-react';
+import { LayoutDashboard, Library, Boxes, ShoppingCart, Megaphone, Settings, Store, X, Bell } from 'lucide-react';
 import { useAdminStore } from '@/store/adminStore';
+import { useAuthStore } from '@/store/authStore';
 
 const navItems = [
   { label: 'Metrics Analytics', href: '/admin/dashboard', icon: <LayoutDashboard size={20} /> },
@@ -13,12 +14,14 @@ const navItems = [
   { label: 'Dynamic Categories', href: '/admin/categories', icon: <Library size={20} /> },
   { label: 'Promotion Builders', href: '/admin/promotions', icon: <Megaphone size={20} /> },
   { label: 'Coupon Engine', href: '/admin/coupons', icon: <Megaphone size={20} /> },
+  { label: 'System Notifications', href: '/admin/notifications', icon: <Bell size={20} /> },
   { label: 'Settings', href: '/admin/settings', icon: <Settings size={20} /> },
 ];
 
 export const AdminSidebar = () => {
   const pathname = usePathname();
   const { isMobileSidebarOpen, closeMobileSidebar } = useAdminStore();
+  const { user } = useAuthStore();
 
   return (
     <>
@@ -72,12 +75,12 @@ export const AdminSidebar = () => {
       {/* Current User Footprint */}
       <div className="p-6 border-t border-gray-200 dark:border-gray-800 shrink-0 bg-gray-50/50 dark:bg-gray-950/50">
          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white font-bold border-2 border-white dark:border-[#121212] shadow-sm">
-              S
+            <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white font-bold border-2 border-white dark:border-[#121212] shadow-sm uppercase">
+              {user?.name?.charAt(0) || 'S'}
             </div>
-            <div>
-              <p className="text-sm font-bold text-gray-900 dark:text-white leading-tight">Super Admin</p>
-              <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-500">System Online</p>
+            <div className="overflow-hidden">
+              <p className="text-sm font-bold text-gray-900 dark:text-white leading-tight truncate">{user?.name || 'Super Admin'}</p>
+              <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-500 truncate">{user?.email || 'System Online'}</p>
             </div>
          </div>
       </div>

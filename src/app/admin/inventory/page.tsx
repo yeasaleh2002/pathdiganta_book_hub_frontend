@@ -1,19 +1,24 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Boxes, Edit2, Trash2, ArrowUpDown, MoreVertical, Plus, Filter } from 'lucide-react';
+import Link from 'next/link';
+import ConfirmModal from '@/components/admin/ConfirmModal';
 
-const mockInventory = [
-  { id: 'ISBN-9821', title: 'The Art of Clean Code Architecture', author: 'Robert C. Martin', category: 'Programming', stock: 145, price: 850, status: 'Active' },
-  { id: 'ISBN-4512', title: 'Domain-Driven Design', author: 'Eric Evans', category: 'Programming', stock: 12, price: 1150, status: 'Low Stock' },
-  { id: 'ISBN-8923', title: 'Paradoxical Sajid', author: 'Arif Azad', category: 'Islamic Books', stock: 0, price: 350, status: 'Out of Stock' },
-  { id: 'ISBN-3321', title: 'Data Structures & Algorithms', author: 'Thomas H. Cormen', category: 'Programming', stock: 45, price: 1250, status: 'Active' },
-  { id: 'ISBN-9923', title: 'Atomic Habits (Bengali)', author: 'James Clear', category: 'Self Help', stock: 210, price: 450, status: 'Active' },
-  { id: 'ISBN-1123', title: 'System Design Interview', author: 'Alex Xu', category: 'Programming', stock: 8, price: 950, status: 'Low Stock' },
-];
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://pathdiganta-book-hub-backend.vercel.app";
+
+type Book = {
+  id: string;
+  title: string;
+  price: number;
+  stock: number;
+  isActive: boolean;
+  author: { name: string };
+  category: { name: string };
+};
 
 export default function InventoryAdminPage() {
-  const [inventory, setInventory] = useState(mockInventory);
+  const [inventory, setInventory] = useState<Book[]>([]);
   const [search, setSearch] = useState('');
   
   // Advanced Table Sorters
@@ -22,7 +27,32 @@ export default function InventoryAdminPage() {
   
   // Pagination Controllers
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 5;
+
+  // Modal State
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [bookToDelete, setBookToDelete] = useState<string | null>(null);
+  const [bookToDeleteTitle, setBookToDeleteTitle] = useState<string>('');
+
+  const fetchInventory = async (page: number) => {
+    try {
+      const res = await fetch(`${API_URL}/api/v1/books?page=${page}&limit=${itemsPerPage}`);
+      const data = await res.json();
+      if (data.success) {
+        setInventory(data.books);
+        setTotalPages(data.meta.totalPages);
+        setTotalItems(data.meta.total);
+      }
+    } catch (error) {
+      console.error("Failed to fetch inventory", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchInventory(currentPage);
+  }, [currentPage]);
 
   const handleSort = (col: string) => {
     if (sortCol === col) {
@@ -34,27 +64,59 @@ export default function InventoryAdminPage() {
   };
 
   const sortedInventory = [...inventory]
-    .filter(i => i.title.toLowerCase().includes(search.toLowerCase()) || i.author.toLowerCase().includes(search.toLowerCase()) || i.id.toLowerCase().includes(search.toLowerCase()))
+    .filter(i => i.title.toLowerCase().includes(search.toLowerCase()) || i.author?.name?.toLowerCase().includes(search.toLowerCase()) || i.id.toLowerCase().includes(search.toLowerCase()))
     .sort((a: any, b: any) => {
       let valA = a[sortCol];
       let valB = b[sortCol];
-      if (typeof valA === 'string') { valA = valA.toLowerCase(); valB = valB.toLowerCase(); }
+      
+      if (sortCol === 'author') { valA = a.author?.name; valB = b.author?.name; }
+      if (sortCol === 'category') { valA = a.category?.name; valB = b.category?.name; }
+
+      if (typeof valA === 'string') { valA = valA?.toLowerCase() || ''; valB = valB?.toLowerCase() || ''; }
       if (valA < valB) return sortDesc ? 1 : -1;
       if (valA > valB) return sortDesc ? -1 : 1;
       return 0;
     });
 
-  const totalPages = Math.ceil(sortedInventory.length / itemsPerPage) || 1;
-  const paginated = sortedInventory.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-  const handleDelete = (id: string) => {
-    if (confirm(`DANGER: Are you sure you want to completely purge title ${id} from the global inventory database?`)) {
-      setInventory(inventory.filter(i => i.id !== id));
-    }
+  const handleDelete = (id: string, title: string) => {
+    setBookToDelete(id);
+    setBookToDeleteTitle(title);
+    setDeleteModalOpen(true);
   }
+
+  const confirmDelete = async () => {
+    if (!bookToDelete) return;
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/v1/admin/books/${bookToDelete}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      // Assuming backend supports DELETE /api/v1/admin/books/:id
+      setInventory(inventory.filter(i => i.id !== bookToDelete));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setDeleteModalOpen(false);
+      setBookToDelete(null);
+    }
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
+      
+      <ConfirmModal 
+        isOpen={deleteModalOpen}
+        title="Purge Inventory Title?"
+        message={`DANGER: Are you sure you want to completely purge "${bookToDeleteTitle || 'this title'}" from the global inventory database? This action is irreversible.`}
+        confirmText="Yes, Purge Title"
+        onConfirm={confirmDelete}
+        onCancel={() => {
+          setDeleteModalOpen(false);
+          setBookToDelete(null);
+          setBookToDeleteTitle('');
+        }}
+      />
       
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -63,9 +125,9 @@ export default function InventoryAdminPage() {
           </h1>
           <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-2 uppercase tracking-widest">Monitor, edit, and safely control the global product catalog.</p>
         </div>
-        <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] transition-transform hover:-translate-y-0.5 flex items-center gap-2">
+        <Link href="/admin/inventory/new" className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] transition-transform hover:-translate-y-0.5 flex items-center gap-2">
           <Plus size={18} strokeWidth={3} /> Add New Title
-        </button>
+        </Link>
       </div>
 
       <div className="bg-white dark:bg-[#121212] border-2 border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm overflow-hidden flex flex-col min-h-[600px]">
@@ -93,7 +155,7 @@ export default function InventoryAdminPage() {
             <thead>
               <tr className="bg-gray-50/80 dark:bg-gray-900/80 border-b-2 border-gray-200 dark:border-gray-800">
                 <th className="px-6 py-5 text-xs uppercase tracking-widest font-black text-gray-500 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors" onClick={() => handleSort('id')}>
-                  <div className="flex items-center gap-2">ISBN Block <ArrowUpDown size={12} /></div>
+                  <div className="flex items-center gap-2">Book ID <ArrowUpDown size={12} /></div>
                 </th>
                 <th className="px-6 py-5 text-xs uppercase tracking-widest font-black text-gray-500 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors" onClick={() => handleSort('title')}>
                   <div className="flex items-center gap-2">Title Overview <ArrowUpDown size={12} /></div>
@@ -112,35 +174,34 @@ export default function InventoryAdminPage() {
               </tr>
             </thead>
             <tbody className="divide-y-2 divide-gray-50 dark:divide-gray-800/50 text-sm">
-              {paginated.map((item) => (
+              {sortedInventory.map((item) => (
                 <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-900/40 transition-colors group">
-                  <td className="px-6 py-5 font-mono text-gray-500 dark:text-gray-400 font-bold bg-gray-50/50 dark:bg-gray-900/20">{item.id}</td>
+                  <td className="px-6 py-5 font-mono text-gray-500 dark:text-gray-400 font-bold bg-gray-50/50 dark:bg-gray-900/20">{item.id.slice(0, 8)}...</td>
                   <td className="px-6 py-5">
                     <p className="font-black text-gray-900 dark:text-gray-200 line-clamp-1 text-base">{item.title}</p>
-                    <p className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-500 mt-1.5">{item.author}</p>
+                    <p className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-500 mt-1.5">{item.author?.name || 'Unknown Author'}</p>
                   </td>
-                  <td className="px-6 py-5 font-bold text-gray-700 dark:text-gray-300">{item.category}</td>
+                  <td className="px-6 py-5 font-bold text-gray-700 dark:text-gray-300">{item.category?.name || 'Uncategorized'}</td>
                   <td className="px-6 py-5 text-right font-black text-gray-900 dark:text-gray-200 text-base">{item.stock}</td>
                   <td className="px-6 py-5 text-right font-black text-emerald-600 dark:text-emerald-400 text-base">৳{item.price}</td>
                   <td className="px-6 py-5 text-center">
                     <span className={`px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-widest inline-block border ${
-                      item.status === 'Active' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/50' :
-                      item.status === 'Low Stock' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-500 border-amber-200 dark:border-amber-800/50' :
+                      item.isActive && item.stock > 10 ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/50' :
+                      item.isActive && item.stock > 0 ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-500 border-amber-200 dark:border-amber-800/50' :
                       'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800/50'
                     }`}>
-                      {item.status}
+                      {!item.isActive ? 'Inactive' : item.stock === 0 ? 'Out of Stock' : item.stock > 10 ? 'Active' : 'Low Stock'}
                     </span>
                   </td>
                   <td className="px-6 py-5">
                     <div className="flex justify-end gap-1.5 opacity-40 group-hover:opacity-100 transition-opacity">
-                      <button className="p-2.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl transition-colors"><Edit2 size={18} /></button>
-                      <button onClick={() => handleDelete(item.id)} className="p-2.5 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl transition-colors"><Trash2 size={18} /></button>
-                      <button className="p-2.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors"><MoreVertical size={18} /></button>
+                      <Link href={`/admin/inventory/edit/${item.id}`} className="p-2.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl transition-colors cursor-pointer"><Edit2 size={18} /></Link>
+                      <button onClick={() => handleDelete(item.id, item.title)} className="p-2.5 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl transition-colors cursor-pointer"><Trash2 size={18} /></button>
                     </div>
                   </td>
                 </tr>
               ))}
-              {paginated.length === 0 && (
+              {sortedInventory.length === 0 && (
                 <tr>
                   <td colSpan={7} className="px-6 py-20 text-center">
                     <p className="text-gray-500 font-black text-xl mb-2">No active inventory found.</p>
@@ -155,7 +216,7 @@ export default function InventoryAdminPage() {
         {/* Deep Pagination Controllers */}
         <div className="p-6 md:p-8 border-t-2 border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 flex flex-col sm:flex-row justify-between items-center gap-6">
           <p className="text-sm font-bold text-gray-500 uppercase tracking-widest">
-            Showing <span className="text-gray-900 dark:text-white mx-1">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="text-gray-900 dark:text-white mx-1">{Math.min(currentPage * itemsPerPage, sortedInventory.length)}</span> of <span className="text-gray-900 dark:text-white mx-1">{sortedInventory.length}</span> blocks
+            Showing <span className="text-gray-900 dark:text-white mx-1">{(currentPage - 1) * itemsPerPage + (sortedInventory.length > 0 ? 1 : 0)}</span> to <span className="text-gray-900 dark:text-white mx-1">{Math.min(currentPage * itemsPerPage, totalItems)}</span> of <span className="text-gray-900 dark:text-white mx-1">{totalItems}</span> blocks
           </p>
           <div className="flex gap-2">
             <button 
@@ -178,7 +239,7 @@ export default function InventoryAdminPage() {
             </div>
             <button 
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-              disabled={currentPage === totalPages}
+              disabled={currentPage === totalPages || totalPages === 0}
               className="px-5 py-2.5 bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl font-black text-xs uppercase tracking-widest text-gray-700 dark:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:border-blue-500 transition-colors"
             >
               Next

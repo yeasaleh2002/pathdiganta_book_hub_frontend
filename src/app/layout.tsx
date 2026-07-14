@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100 transition-colors duration-200 antialiased flex flex-col min-h-screen`}>
+      <body suppressHydrationWarning className={`${inter.className} bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100 transition-colors duration-200 antialiased flex flex-col min-h-screen`}>
         <ThemeProvider>
           {children}
           <GlobalToaster />

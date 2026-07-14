@@ -1,7 +1,9 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { TrendingUp, DollarSign, Users, ShoppingCart, ArrowUpRight, ArrowDownRight, Target, Activity, Package } from 'lucide-react';
+
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://pathdiganta-book-hub-backend.vercel.app";
 
 const StatCard = ({ title, value, trend, trendValue, icon, alert = false }: any) => (
   <div className="bg-white dark:bg-[#121212] border-2 border-gray-100 dark:border-gray-800 p-6 rounded-3xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
@@ -28,6 +30,45 @@ const StatCard = ({ title, value, trend, trendValue, icon, alert = false }: any)
 );
 
 export default function AdminDashboardPage() {
+  const [stats, setStats] = useState({
+    todaysSales: 0,
+    monthlySales: 0,
+    totalRevenue: 0,
+    abandonedCarts: 0,
+    uniqueVisitors: 0,
+    conversionRate: 0,
+    cartAbandonmentRate: 0,
+    activeOrders: 0
+  });
+  
+  const [topBooks, setTopBooks] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchDashboardStats = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API_URL}/api/v1/admin/analytics/dashboard`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          setStats(data.stats);
+        }
+        
+        const resTop = await fetch(`${API_URL}/api/v1/admin/analytics/top-selling-books`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const dataTop = await resTop.json();
+        if (dataTop.success) {
+          setTopBooks(dataTop.topBooks);
+        }
+      } catch (error) {
+        console.error("Failed to load dashboard analytics", error);
+      }
+    };
+    fetchDashboardStats();
+  }, []);
+
   return (
     <div className="space-y-10 animate-in fade-in duration-500">
       
@@ -38,15 +79,14 @@ export default function AdminDashboardPage() {
 
       {/* KPI Overview Panel */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard title="Today's Sales" value="৳ 45,230" trend="up" trendValue="+14.2%" icon={<DollarSign size={24} />} />
-        <StatCard title="Monthly Sales" value="৳ 1.2M" trend="up" trendValue="+8.1%" icon={<TrendingUp size={24} />} />
-        <StatCard title="Total Revenue" value="৳ 14.5M" trend="up" trendValue="+22.4%" icon={<Target size={24} />} />
-        <StatCard title="Profit Margins" value="28.4%" trend="down" trendValue="-1.2%" icon={<Activity size={24} />} />
-        
-        <StatCard title="Unique Visitors" value="12,405" trend="up" trendValue="+5.4%" icon={<Users size={24} />} />
-        <StatCard title="Conversion Rate" value="3.8%" trend="up" trendValue="+0.6%" icon={<ShoppingCart size={24} />} />
-        <StatCard title="Cart Abandonment" value="64.2%" trend="down" trendValue="-4.1%" icon={<ShoppingCart size={24} />} alert={true} />
-        <StatCard title="Active Orders" value="342" trend="up" trendValue="+12" icon={<Package size={24} />} />
+        <StatCard title="Today's Sales" value={`৳ ${stats.todaysSales}`} trend="up" trendValue="+" icon={<DollarSign size={24} />} />
+        <StatCard title="Monthly Sales" value={`৳ ${stats.monthlySales}`} trend="up" trendValue="+" icon={<TrendingUp size={24} />} />
+        <StatCard title="Total Revenue" value={`৳ ${stats.totalRevenue}`} trend="up" trendValue="+" icon={<Target size={24} />} />
+        <StatCard title="Abandoned Carts" value={stats.abandonedCarts} trend="down" trendValue="-" icon={<ShoppingCart size={24} />} alert={true} />
+        <StatCard title="Unique Visitors" value={stats.uniqueVisitors || 0} trend="up" trendValue="+5.4%" icon={<Users size={24} />} />
+        <StatCard title="Conversion Rate" value={`${stats.conversionRate || 0}%`} trend="up" trendValue="+0.6%" icon={<ShoppingCart size={24} />} />
+        <StatCard title="Cart Abandonment" value={`${stats.cartAbandonmentRate || 0}%`} trend="down" trendValue="-4.1%" icon={<Activity size={24} />} alert={true} />
+        <StatCard title="Active Orders" value={stats.activeOrders || 0} trend="up" trendValue="+12" icon={<Package size={24} />} />
       </div>
 
       {/* Tables Row Matrix */}
@@ -56,7 +96,7 @@ export default function AdminDashboardPage() {
         <div className="bg-white dark:bg-[#121212] border-2 border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm overflow-hidden flex flex-col">
           <div className="p-6 md:p-8 border-b-2 border-gray-100 dark:border-gray-800 flex justify-between items-center">
             <h3 className="font-black text-xl text-gray-900 dark:text-white tracking-tight">Top Selling Books</h3>
-            <button className="text-xs font-bold text-blue-600 hover:text-blue-700 uppercase tracking-widest">View All</button>
+            <button className="text-xs font-bold text-blue-600 hover:text-blue-700 uppercase tracking-widest cursor-pointer">View All</button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[500px]">
@@ -68,19 +108,17 @@ export default function AdminDashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y-2 divide-gray-50 dark:divide-gray-800/50 text-sm">
-                {[
-                  { title: 'The Art of Clean Code', sold: 412, rev: '34,500' },
-                  { title: 'Data Structures & Algorithms', sold: 389, rev: '42,000' },
-                  { title: 'Paradoxical Sajid', sold: 345, rev: '12,500' },
-                  { title: 'Atomic Habits (Bengali)', sold: 298, rev: '11,200' },
-                  { title: 'System Design Interview', sold: 215, rev: '54,000' },
-                ].map((item, idx) => (
+                {topBooks.length > 0 ? topBooks.map((item, idx) => (
                   <tr key={idx} className="hover:bg-gray-50 dark:hover:bg-gray-900/40 transition-colors group">
                     <td className="px-8 py-5 font-bold text-gray-900 dark:text-gray-200 group-hover:text-blue-600 transition-colors cursor-pointer">{item.title}</td>
-                    <td className="px-8 py-5 text-right font-bold text-gray-600 dark:text-gray-400">{item.sold}</td>
-                    <td className="px-8 py-5 text-right font-black text-emerald-600 dark:text-emerald-500">৳ {item.rev}</td>
+                    <td className="px-8 py-5 text-right font-bold text-gray-600 dark:text-gray-400">{item.totalSold}</td>
+                    <td className="px-8 py-5 text-right font-black text-emerald-600 dark:text-emerald-500">৳ {item.price * item.totalSold}</td>
                   </tr>
-                ))}
+                )) : (
+                  <tr>
+                    <td colSpan={3} className="px-8 py-5 text-center text-gray-500 font-bold text-sm">No sales data available yet.</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

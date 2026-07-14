@@ -9,6 +9,7 @@ import { BundleRow } from '@/components/book/BundleRow';
 import { BookShelf } from '@/components/modules/BookShelf';
 import { fetchBookById, generateMockBooks } from '@/utils/mockData';
 import { Star } from 'lucide-react';
+import Link from 'next/link';
 
 // 1. Next.js SEO Metadata API Implementation
 export async function generateMetadata(

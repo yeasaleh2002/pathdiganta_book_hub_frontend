@@ -8,9 +8,12 @@ const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://pathdiganta-boo
 
 type DropdownItem = { id: string; name: string };
 
-export default function AddNewBookPage() {
+export default function EditBookPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const unwrappedParams = React.use(params);
+  const bookId = unwrappedParams.id;
   
   const [formData, setFormData] = useState({
     title: '', authorId: '', publisherId: '', isbn: '', price: '', categoryId: '', description: '', stock: ''
@@ -34,25 +37,46 @@ export default function AddNewBookPage() {
   useEffect(() => {
     const fetchMetadata = async () => {
       try {
-        const [catRes, authRes, pubRes] = await Promise.all([
+        const [catRes, authRes, pubRes, bookRes] = await Promise.all([
           fetch(`${API_URL}/api/v1/categories`),
           fetch(`${API_URL}/api/v1/authors`),
-          fetch(`${API_URL}/api/v1/publishers`)
+          fetch(`${API_URL}/api/v1/publishers`),
+          fetch(`${API_URL}/api/v1/books/${bookId}`)
         ]);
         
         const catData = await catRes.json();
         const authData = await authRes.json();
         const pubData = await pubRes.json();
+        const bookData = await bookRes.json();
         
         if (catData.success) setCategories(catData.categories);
         if (authData.success) setAuthors(authData.authors);
         if (pubData.success) setPublishers(pubData.publishers);
+        
+        if (bookData.success && bookData.book) {
+          const b = bookData.book;
+          setFormData({
+            title: b.title,
+            authorId: b.authorId,
+            publisherId: b.publisherId,
+            isbn: b.isbn,
+            price: b.price.toString(),
+            categoryId: b.categoryId,
+            description: b.description || '',
+            stock: b.stock.toString()
+          });
+          if (b.imageUrls && b.imageUrls.length > 0) {
+            setPreviewUrls(b.imageUrls);
+            // We cannot edit existing external URL files here easily, 
+            // so if they choose new files, we replace, otherwise we keep existing
+          }
+        }
       } catch (error) {
         console.error("Failed to load metadata", error);
       }
     };
     fetchMetadata();
-  }, []);
+  }, [bookId]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -156,13 +180,13 @@ export default function AddNewBookPage() {
         price: Number(formData.price),
         stock: Number(formData.stock),
         description: formData.description,
-        imageUrls: uploadedUrls
+        ...(uploadedUrls.length > 0 ? { imageUrls: uploadedUrls } : {})
       };
 
-      // 3. Post to Internal API routing
+      // 3. Put to Internal API routing
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/api/v1/admin/books`, {
-        method: 'POST',
+      const response = await fetch(`${API_URL}/api/v1/admin/books/${bookId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -173,10 +197,10 @@ export default function AddNewBookPage() {
 
       if (data.success) {
         setIsUploading(false);
-        alert("Success: Book structurally generated and deployed to global catalog.");
+        alert("Success: Book structurally modified and deployed to global catalog.");
         router.push('/admin/inventory');
       } else {
-        alert(data.message || "Failed to add book");
+        alert(data.message || "Failed to update book");
         setIsUploading(false);
       }
     } catch (error: any) {
@@ -190,8 +214,8 @@ export default function AddNewBookPage() {
     <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
       
       <div>
-        <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Catalog Induction Hub</h1>
-        <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-2 uppercase tracking-widest">Register new titles directly into the global inventory matrix.</p>
+        <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Catalog Mutation Hub</h1>
+        <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-2 uppercase tracking-widest">Update existing title directly in the global inventory matrix.</p>
       </div>
 
       <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 p-5 rounded-2xl flex items-start gap-4 shadow-sm">
@@ -337,7 +361,7 @@ export default function AddNewBookPage() {
               {isUploading ? (
                 <><Loader2 size={18} className="animate-spin" /> {uploadProgress}% Transporting Assets...</>
               ) : (
-                <><Save size={18} strokeWidth={3} /> Compile & Inject Database Payload</>
+                <><Save size={18} strokeWidth={3} /> Inject Modified Payload</>
               )}
             </button>
           </div>

@@ -1,12 +1,28 @@
 "use client";
 
 import React from 'react';
-import { Search, Bell, UserCircle, Menu } from 'lucide-react';
+import { Search, Bell, UserCircle, Menu, LogOut } from 'lucide-react';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { useAdminStore } from '@/store/adminStore';
+import { useAuthStore } from '@/store/authStore';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export const AdminTopbar = () => {
   const { toggleMobileSidebar } = useAdminStore();
+  const { user, fetchUser, logout } = useAuthStore();
+  const router = useRouter();
+
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
+
+  const handleLogout = () => {
+    if(confirm("Are you sure you want to log out of the admin portal?")) {
+      logout();
+      router.push('/login');
+    }
+  };
 
   return (
     <header className="h-20 bg-white dark:bg-[#121212] border-b border-gray-200 dark:border-gray-800 px-4 md:px-8 flex items-center justify-between sticky top-0 z-20 shrink-0">
@@ -41,10 +57,20 @@ export const AdminTopbar = () => {
 
         <div className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
           <div className="text-right hidden sm:block">
-            <p className="text-sm font-black text-gray-900 dark:text-white leading-tight">System Master</p>
+            <p className="text-sm font-black text-gray-900 dark:text-white leading-tight">{user?.name || 'System Master'}</p>
             <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-0.5">Operations Deck</p>
           </div>
-          <UserCircle size={38} className="text-blue-600 dark:text-blue-500" />
+          {user?.name ? (
+            <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold border-2 border-white dark:border-[#121212] shadow-sm uppercase">
+              {user.name.charAt(0)}
+            </div>
+          ) : (
+            <UserCircle size={38} className="text-blue-600 dark:text-blue-500" />
+          )}
+          
+          <button onClick={handleLogout} className="ml-2 p-2.5 text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 rounded-xl transition-colors" title="Log Out">
+            <LogOut size={20} />
+          </button>
         </div>
       </div>
 

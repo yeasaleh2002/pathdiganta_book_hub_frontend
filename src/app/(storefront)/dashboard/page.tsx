@@ -8,10 +8,12 @@ import { AddressTab } from '@/components/dashboard/AddressTab';
 import { OrdersTab } from '@/components/dashboard/OrdersTab';
 import { RewardsTab } from '@/components/dashboard/RewardsTab';
 import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/authStore';
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState('orders');
   const router = useRouter();
+  const { user } = useAuthStore();
 
   // Basic Session Termination execution
   const handleLogout = () => {
@@ -39,11 +41,11 @@ export default function DashboardPage() {
               
               {/* User Identity Display */}
               <div className="p-8 border-b border-gray-100 dark:border-gray-800 text-center bg-gray-50/50 dark:bg-gray-950/50">
-                <div className="w-24 h-24 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white text-4xl font-black mx-auto mb-4 shadow-md ring-4 ring-white dark:ring-gray-900">
-                  R
+                <div className="w-24 h-24 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white text-4xl font-black mx-auto mb-4 shadow-md ring-4 ring-white dark:ring-gray-900 uppercase">
+                  {user?.name?.charAt(0) || 'U'}
                 </div>
-                <h2 className="font-black text-gray-900 dark:text-white text-xl tracking-tight">Md. Rahim Uddin</h2>
-                <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 mt-1">rahim.uddin@example.com</p>
+                <h2 className="font-black text-gray-900 dark:text-white text-xl tracking-tight line-clamp-1">{user?.name || 'User'}</h2>
+                <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 mt-1 truncate">{user?.email || 'email@example.com'}</p>
               </div>
 
               {/* Functional Routing Tabs */}

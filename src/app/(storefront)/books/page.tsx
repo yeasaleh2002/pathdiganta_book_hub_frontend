@@ -96,7 +96,9 @@ export default function BooksExplorerPage({
 
       <div className="flex flex-col md:flex-row gap-8 items-start relative">
         {/* Sidebar Filter Component */}
-        <SidebarFilter />
+        <Suspense fallback={<div className="w-72 md:w-64 h-96 bg-gray-50 dark:bg-gray-900 animate-pulse rounded-xl hidden md:block"></div>}>
+          <SidebarFilter />
+        </Suspense>
         
         {/* Main Grid Content wrapped in Suspense for loading state shifts */}
         <div className="flex-1 w-full min-w-0">
