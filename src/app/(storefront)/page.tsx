@@ -3,6 +3,7 @@ import { BookShelf } from '@/components/modules/BookShelf';
 import { AuthorPublisherBlock } from '@/components/modules/AuthorPublisherBlock';
 import { UspFeatureGrid } from '@/components/modules/UspFeatureGrid';
 import { TestimonialCarousel } from '@/components/modules/TestimonialCarousel';
+import { HeroSection } from '@/components/modules/HeroSection';
 import { GridSkeleton } from '@/components/ui/skeletons';
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://pathdiganta-book-hub-backend.vercel.app";
@@ -64,16 +65,44 @@ async function fetchCombos() {
   return [];
 }
 
+async function fetchTopAuthors() {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/authors/top`, { next: { revalidate: 60 } });
+    const data = await res.json();
+    return data.success ? data.authors : [];
+  } catch (e) {
+    console.error("Failed to fetch top authors", e);
+    return [];
+  }
+}
+
+async function fetchTopPublishers() {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/publishers/top`, { next: { revalidate: 60 } });
+    const data = await res.json();
+    return data.success ? data.publishers : [];
+  } catch (e) {
+    console.error("Failed to fetch top publishers", e);
+    return [];
+  }
+}
+
 export default async function HomePage() {
-  const [newArrivals, bestSellers, islamicBooks, combos] = await Promise.all([
+  const [newArrivals, bestSellers, islamicBooks, combos, topAuthors, topPublishers] = await Promise.all([
     fetchNewArrivals(),
     fetchBestSellers(),
     fetchCategoryBooks("islamic"),
-    fetchCombos()
+    fetchCombos(),
+    fetchTopAuthors(),
+    fetchTopPublishers()
   ]);
 
   return (
-    <div className="w-full flex flex-col pb-0 pt-6">
+    <div className="w-full flex flex-col pb-0">
+      
+      <HeroSection />
+
+      <div className="pt-10"></div>
       
       {/* 1. New Arrivals */}
       <Suspense fallback={<div className="max-w-7xl mx-auto px-4"><GridSkeleton /></div>}>
@@ -94,7 +123,7 @@ export default async function HomePage() {
       </Suspense>
 
       {/* 3. Author & Publisher Block */}
-      <AuthorPublisherBlock />
+      <AuthorPublisherBlock authors={topAuthors} publishers={topPublishers} />
 
       {/* 4. Category Highlights (Islamic Books) */}
       <Suspense fallback={<div className="max-w-7xl mx-auto px-4"><GridSkeleton /></div>}>

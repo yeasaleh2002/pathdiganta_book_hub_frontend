@@ -33,22 +33,8 @@ export const Header = () => {
 
   return (
     <header className="w-full flex flex-col z-50 relative">
-      {/* Top Notification Bar */}
-      <div className="w-full bg-gray-900 dark:bg-gray-950 text-white text-xs py-2 px-4 transition-colors">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex gap-4">
-            <span className="flex items-center gap-1 hover:text-blue-400 cursor-pointer transition-colors"><PhoneCall size={12}/> Support: 16297</span>
-            <span className="hidden sm:flex items-center gap-1 hover:text-blue-400 cursor-pointer transition-colors"><Truck size={12}/> Track Order</span>
-          </div>
-          <div className="flex gap-4 items-center">
-            <span className="hover:text-blue-400 cursor-pointer transition-colors">Corporate Sales</span>
-            <span className="hover:text-blue-400 cursor-pointer transition-colors">Blog</span>
-          </div>
-        </div>
-      </div>
-
       {/* Main Sticky Header */}
-      <div className={`w-full bg-white dark:bg-gray-900 transition-all duration-300 border-b border-gray-200 dark:border-gray-800 ${
+      <div className={`w-full bg-white/80 dark:bg-gray-950/80 backdrop-blur-md transition-all duration-300 border-b border-gray-200/50 dark:border-gray-800/50 ${
         isScrolled ? "sticky top-0 shadow-md py-3" : "py-4"
       }`}>
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between gap-4">
@@ -64,8 +50,8 @@ export const Header = () => {
 
           {/* Search Bar - Hidden on small mobile, expands on md+ */}
           <div className="hidden md:flex flex-1 max-w-2xl items-center mx-4 group relative">
-            <div className="flex w-full rounded-full border-2 border-blue-600/30 dark:border-blue-500/30 focus-within:border-blue-600 dark:focus-within:border-blue-500 overflow-hidden bg-gray-50 dark:bg-gray-950 transition-colors">
-              <select className="bg-transparent border-none text-sm px-4 py-2 outline-none text-gray-700 dark:text-gray-300 cursor-pointer hidden lg:block border-r border-gray-300 dark:border-gray-700">
+            <div className="flex w-full rounded-full border border-gray-300 dark:border-gray-700 focus-within:border-blue-600 dark:focus-within:border-blue-500 overflow-hidden bg-gray-50/50 dark:bg-gray-900/50 transition-all shadow-inner">
+              <select className="bg-transparent border-none text-sm px-4 py-2 outline-none text-gray-700 dark:text-gray-300 cursor-pointer hidden lg:block border-r border-gray-200 dark:border-gray-700 font-medium">
                 <option value="all">All Categories</option>
                 <option value="fiction">Fiction</option>
                 <option value="academic">Academic</option>
@@ -74,7 +60,7 @@ export const Header = () => {
               <input 
                 type="text" 
                 placeholder="Search for books, authors, publishers..." 
-                className="flex-1 bg-transparent border-none px-4 py-2 outline-none text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500"
+                className="flex-1 bg-transparent border-none px-4 py-2 outline-none text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 font-medium"
               />
               <button className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 transition-colors flex items-center justify-center">
                 <Search size={18} />
@@ -88,15 +74,17 @@ export const Header = () => {
             
             <Link href="/dashboard?tab=wishlist" className="relative p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
               <Heart size={22} />
-              <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-red-500 rounded-full">
-                0
-              </span>
+              {mounted && user?.wishlist?.length > 0 && (
+                <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-red-500 rounded-full">
+                  {user.wishlist.length}
+                </span>
+              )}
             </Link>
 
             <button onClick={openDrawer} className="relative p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors cursor-pointer">
               <ShoppingCart size={22} />
               {mounted && items.length > 0 && (
-                <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-blue-600 rounded-full border-2 border-white dark:border-gray-900">
+                <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-blue-600 rounded-full border-2 border-white dark:border-gray-950">
                   {items.reduce((acc, item) => acc + item.quantity, 0)}
                 </span>
               )}

@@ -6,6 +6,8 @@ import { Heart, Share2, ShoppingCart, Zap, CheckCircle2 } from 'lucide-react';
 import { ImageGallery } from '@/components/book/ImageGallery';
 import { BookTabs } from '@/components/book/BookTabs';
 import { BundleRow } from '@/components/book/BundleRow';
+import { CartButtons } from '@/components/book/CartButtons';
+import { WishlistShareButtons } from '@/components/book/WishlistShareButtons';
 import { BookShelf } from '@/components/modules/BookShelf';
 import { Star } from 'lucide-react';
 import Link from 'next/link';
@@ -65,7 +67,7 @@ export async function generateMetadata(
       siteName: 'Pathdigonto Book Hub',
       images: [
         {
-          url: book.images?.[0] || 'https://placehold.co/600x900',
+          url: book.imageUrls?.[0] || book.images?.[0] || 'https://placehold.co/600x900',
           width: 800,
           height: 1200,
           alt: book.title,
@@ -118,7 +120,7 @@ export default async function BookDetailsPage({ params }: { params: Promise<{ id
          <div className="flex flex-col lg:flex-row gap-10 lg:gap-14 mb-16">
            
            <div className="w-full lg:w-[420px] flex-shrink-0">
-             <ImageGallery images={book.images || ['https://placehold.co/600x900']} />
+             <ImageGallery images={book.imageUrls || book.images || ['https://placehold.co/600x900']} />
            </div>
            
            <div className="flex-1 flex flex-col">
@@ -128,14 +130,7 @@ export default async function BookDetailsPage({ params }: { params: Promise<{ id
                   <h1 className="text-2xl md:text-4xl font-extrabold text-gray-900 dark:text-white leading-tight">
                     {book.title}
                   </h1>
-                  <div className="flex gap-2 flex-shrink-0">
-                    <button className="p-2.5 text-gray-400 hover:text-red-500 bg-gray-50 dark:bg-gray-900 rounded-full transition-colors border border-gray-200 dark:border-gray-800 hover:border-red-200 hover:bg-red-50 dark:hover:bg-red-900/20 shadow-sm cursor-pointer">
-                      <Heart size={20} />
-                    </button>
-                    <button className="p-2.5 text-gray-400 hover:text-blue-500 bg-gray-50 dark:bg-gray-900 rounded-full transition-colors border border-gray-200 dark:border-gray-800 hover:border-blue-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 shadow-sm cursor-pointer">
-                      <Share2 size={20} />
-                    </button>
-                  </div>
+                  <WishlistShareButtons bookId={book._id || book.id} />
                 </div>
                 
                 <p className="text-lg text-gray-600 dark:text-gray-400 mt-3">
@@ -173,20 +168,7 @@ export default async function BookDetailsPage({ params }: { params: Promise<{ id
                )}
              </div>
 
-             <div className="flex flex-col sm:flex-row gap-4 mb-10">
-               <button 
-                 disabled={book.stock <= 0}
-                 className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-4 px-6 rounded-xl font-bold text-lg transition-all shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none cursor-pointer"
-               >
-                 <ShoppingCart size={22} /> Add to Cart
-               </button>
-               <button 
-                 disabled={book.stock <= 0}
-                 className="flex-1 flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white py-4 px-6 rounded-xl font-bold text-lg transition-all shadow-[0_4px_14px_0_rgba(249,115,22,0.39)] hover:shadow-[0_6px_20px_rgba(249,115,22,0.23)] hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none cursor-pointer"
-               >
-                 <Zap size={22} className="fill-white" /> Buy Now
-               </button>
-             </div>
+              <CartButtons book={book} />
 
              <div className="grid grid-cols-2 sm:grid-cols-4 gap-y-6 gap-x-4 p-6 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800">
                <div className="flex flex-col gap-1.5">
@@ -210,19 +192,13 @@ export default async function BookDetailsPage({ params }: { params: Promise<{ id
            </div>
          </div>
 
-         {bundleBooks.length > 0 && (
-           <div className="mb-14">
-             <BundleRow mainBook={book} bundleBooks={bundleBooks} />
-           </div>
-         )}
-
          <div className="mb-16">
            <BookTabs description={book.description} authorBio={book.author?.bio || 'No author biography available.'} />
          </div>
 
          {relatedBooks.length > 0 && (
            <div className="pt-10 border-t border-gray-200 dark:border-gray-800">
-             <BookShelf title="Customers Also Bought" viewAllLink={`/books?category=${book.category?.name}`} books={relatedBooks} />
+             <BookShelf title="Top Rated Books" viewAllLink={`/books?category=${book.category?.name}`} books={relatedBooks} />
            </div>
          )}
 
