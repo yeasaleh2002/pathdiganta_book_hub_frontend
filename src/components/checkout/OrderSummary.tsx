@@ -5,18 +5,43 @@ import { useCartStore } from '@/store/cartStore';
 import { Tag, Gift, CheckCircle2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-export const OrderSummary = () => {
+import { useAuthStore } from '@/store/authStore';
+
+export const OrderSummary = ({ address, onSummaryChange }: { address?: any, onSummaryChange?: (summary: any) => void }) => {
   const { items } = useCartStore();
+  const { user } = useAuthStore();
   
   const [coupon, setCoupon] = useState('');
   const [discount, setDiscount] = useState(0);
   const [pointsApplied, setPointsApplied] = useState(false);
   
-  const availablePoints = 450;
-  const pointValue = 45; 
+  const totalUserPoints = user?.loyaltyPoints || 0;
+  // A user can use max 3000 points on their single purchase.
+  const usablePoints = Math.min(totalUserPoints, 3000);
+  const pointValue = usablePoints * 0.02; // 1000 points = 20 taka -> 1 point = 0.02 taka
+
+  // Notify parent component of summary state changes
+  React.useEffect(() => {
+    if (onSummaryChange) {
+      onSummaryChange({
+        couponCode: discount > 0 ? coupon : '',
+        pointsUsed: pointsApplied ? usablePoints : 0
+      });
+    }
+  }, [discount, coupon, pointsApplied, usablePoints, onSummaryChange]);
 
   const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-  const shipping = items.length > 0 ? 60 : 0; 
+  
+  // Calculate dynamic shipping
+  let shipping = 0;
+  if (items.length > 0) {
+    if (address) {
+      shipping = address.isInsideDhaka ? 70 : 130;
+    } else {
+      // Default fallback if no address selected yet, assume 70 (Inside Dhaka)
+      shipping = 70;
+    }
+  }
   
   const applyCoupon = (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,11 +112,14 @@ export const OrderSummary = () => {
       <div className="mb-6 p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl flex items-center justify-between shadow-sm">
         <div>
           <span className="font-bold text-gray-900 dark:text-gray-100 flex items-center gap-1.5 text-sm"><Gift size={16} className="text-amber-500" /> Reward Points</span>
-          <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 block mt-0.5">Balance: {availablePoints} pts (৳{pointValue})</span>
+          <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 block mt-0.5">
+            Balance: {totalUserPoints} pts (Usable: {usablePoints} pts = ৳{pointValue.toFixed(0)})
+          </span>
         </div>
         <button 
           onClick={() => setPointsApplied(!pointsApplied)}
-          className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors flex items-center gap-1 ${pointsApplied ? 'bg-amber-500 text-white shadow-sm' : 'bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-amber-400'}`}
+          disabled={usablePoints === 0}
+          className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors flex items-center gap-1 disabled:opacity-50 ${pointsApplied ? 'bg-amber-500 text-white shadow-sm' : 'bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-amber-400'}`}
         >
           {pointsApplied ? <><CheckCircle2 size={14} /> Applied</> : 'Redeem'}
         </button>
@@ -106,7 +134,7 @@ export const OrderSummary = () => {
           <span className="text-gray-900 dark:text-white">৳{subtotal}</span>
         </div>
         <div className="flex justify-between font-medium text-gray-600 dark:text-gray-400">
-          <span>Estimated Shipping</span>
+          <span>Shipping</span>
           <span className="text-gray-900 dark:text-white">৳{shipping}</span>
         </div>
         
@@ -120,7 +148,7 @@ export const OrderSummary = () => {
         {pointsApplied && (
           <div className="flex justify-between font-bold text-amber-600 dark:text-amber-400">
             <span>Points Redeemed</span>
-            <span>-৳{pointsDiscount}</span>
+            <span>-৳{pointsDiscount.toFixed(0)}</span>
           </div>
         )}
       </div>
@@ -130,6 +158,13 @@ export const OrderSummary = () => {
       <div className="flex justify-between items-end bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-800">
         <span className="text-lg font-bold text-gray-900 dark:text-white">Grand Total</span>
         <span className="text-3xl font-black text-blue-600 dark:text-blue-400 leading-none">৳{grandTotal.toFixed(0)}</span>
+      </div>
+
+      <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl flex items-center justify-center gap-2">
+        <Gift size={16} className="text-amber-500" />
+        <span className="text-xs font-bold text-amber-700 dark:text-amber-400">
+          You will earn {Math.floor(subtotal * 0.06)} points (৳{Math.floor(subtotal * 0.06 * 0.02)}) on this order!
+        </span>
       </div>
     </div>
   );

@@ -71,13 +71,13 @@ export const BookShelf = ({ title, viewAllLink, books }: BookShelfProps) => {
           className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] scroll-smooth"
         >
           {books.length > 0 ? books.map((book, i) => (
-            <motion.div key={book.id || i} variants={itemVariants} className="flex-none w-[160px] md:w-[220px] lg:w-[calc(25%-0.75rem)] snap-start">
+            <motion.div key={book.id || i} variants={itemVariants} className="flex-none w-[85vw] sm:w-[160px] md:w-[220px] lg:w-[calc(25%-0.75rem)] snap-center sm:snap-start">
               <BookCard book={book} />
             </motion.div>
           )) : (
             // Skeleton loader fallback
             Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="flex-none w-[160px] md:w-[220px] lg:w-[calc(25%-0.75rem)] h-[340px] bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse border border-gray-200 dark:border-gray-700 snap-start" />
+              <div key={i} className="flex-none w-[85vw] sm:w-[160px] md:w-[220px] lg:w-[calc(25%-0.75rem)] h-[340px] bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse border border-gray-200 dark:border-gray-700 snap-center sm:snap-start" />
             ))
           )}
         </motion.div>

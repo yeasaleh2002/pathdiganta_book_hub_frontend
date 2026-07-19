@@ -90,14 +90,21 @@ export default async function BooksExplorerPage({
   return (
     <div className="max-w-[1400px] mx-auto px-4 py-8">
       
-      {/* Header */}
-      <div className="mb-8 border-b border-gray-200 dark:border-gray-800 pb-4">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-          {searchQuery ? `Search Results for "${searchQuery}"` : "Explore All Books"}
-        </h1>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-          Discover millions of books across various categories, authors, and publishers.
-        </p>
+      {/* Premium Header */}
+      <div className="mb-10 relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-800 p-8 md:p-12 shadow-lg">
+        <div className="relative z-10">
+          <h1 className="text-3xl md:text-5xl font-black text-white mb-4 tracking-tight">
+            {searchQuery ? (
+              <>Search Results for <span className="text-blue-200">"{searchQuery}"</span></>
+            ) : "Explore Our Collection"}
+          </h1>
+          <p className="text-blue-100/90 text-lg md:text-xl max-w-2xl font-medium">
+            Discover thousands of hand-picked books across various categories, trusted authors, and top publishers.
+          </p>
+        </div>
+        {/* Decorative elements */}
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-blue-400/20 rounded-full blur-2xl pointer-events-none"></div>
       </div>
 
       <div className="flex flex-col md:flex-row gap-8 items-start relative">

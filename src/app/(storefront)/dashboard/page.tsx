@@ -6,6 +6,7 @@ import { User, MapPin, Package, Heart, Gift, LogOut } from 'lucide-react';
 import { ProfileTab } from '@/components/dashboard/ProfileTab';
 import { AddressTab } from '@/components/dashboard/AddressTab';
 import { OrdersTab } from '@/components/dashboard/OrdersTab';
+import { WishlistTab } from '@/components/dashboard/WishlistTab';
 import { RewardsTab } from '@/components/dashboard/RewardsTab';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
@@ -82,16 +83,7 @@ function DashboardContent() {
             {activeTab === 'address' && <AddressTab />}
             {activeTab === 'orders' && <OrdersTab />}
             
-            {activeTab === 'wishlist' && (
-              <div className="p-12 bg-white dark:bg-gray-900 rounded-3xl border border-gray-200 dark:border-gray-800 text-center shadow-sm animate-in fade-in">
-                <div className="w-24 h-24 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Heart size={40} className="text-gray-300 dark:text-gray-600" />
-                </div>
-                <h3 className="text-2xl font-black text-gray-900 dark:text-white">Your Wishlist is Empty</h3>
-                <p className="text-gray-500 font-medium mt-3 max-w-sm mx-auto">Explore our extensive catalog and bookmark your favorite titles for later.</p>
-                <button onClick={() => router.push('/books')} className="mt-6 px-8 py-3 bg-blue-600 text-white font-bold rounded-xl shadow-sm hover:bg-blue-700 transition-colors">Browse Books</button>
-              </div>
-            )}
+            {activeTab === 'wishlist' && <WishlistTab />}
             
             {activeTab === 'rewards' && <RewardsTab />}
           </div>

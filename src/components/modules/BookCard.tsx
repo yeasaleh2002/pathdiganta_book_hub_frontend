@@ -1,12 +1,13 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ShoppingCart, Star } from 'lucide-react';
+import { ShoppingCart, Star, Heart } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 import { useAuthStore } from '@/store/authStore';
+import { useWishlistStore } from '@/store/wishlistStore';
 import { useRouter, usePathname } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Book {
   id?: string;
@@ -25,12 +26,43 @@ interface Book {
 export const BookCard = ({ book }: { book: Book }) => {
   const { addItem, openDrawer } = useCartStore();
   const { isLoggedIn } = useAuthStore();
+  const { isInWishlist, addItem: addToWishlist, removeItem: removeFromWishlist } = useWishlistStore();
   const router = useRouter();
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const bookIdStr = book._id || book.id || '';
+  const isWished = mounted ? isInWishlist(bookIdStr) : false;
 
   const discount = book.originalPrice 
     ? Math.round(((book.originalPrice - book.price) / book.originalPrice) * 100) 
     : 0;
+
+  const handleToggleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!isLoggedIn) {
+      router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
+      return;
+    }
+
+    if (isWished) {
+      removeFromWishlist(bookIdStr);
+    } else {
+      addToWishlist({
+        id: bookIdStr,
+        title: book.title,
+        price: book.price,
+        imageUrls: book.imageUrls || book.images || (book.coverImage ? [book.coverImage] : []),
+        author: { id: '', name: typeof book.author === 'object' && book.author !== null ? (book.author as any).name : book.author || 'Unknown' }
+      });
+    }
+  };
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -42,7 +74,7 @@ export const BookCard = ({ book }: { book: Book }) => {
     }
     
     await addItem({
-      id: book._id || book.id || '',
+      id: bookIdStr,
       title: book.title,
       price: book.price,
       originalPrice: book.originalPrice,
@@ -83,8 +115,20 @@ export const BookCard = ({ book }: { book: Book }) => {
             </div>
           )}
           
+          <button
+            onClick={handleToggleWishlist}
+            className={`absolute top-2 right-2 p-2 rounded-full shadow-md z-20 transition-all duration-300 ${
+              isWished 
+                ? 'bg-red-50 dark:bg-red-900/30 text-red-500 hover:bg-red-100' 
+                : 'bg-white/90 dark:bg-gray-800/90 text-gray-400 hover:text-red-500 hover:bg-white'
+            } backdrop-blur-sm opacity-100 sm:opacity-0 group-hover:opacity-100 focus:opacity-100`}
+            aria-label={isWished ? "Remove from wishlist" : "Add to wishlist"}
+          >
+            <Heart size={16} className={isWished ? "fill-red-500" : ""} />
+          </button>
+          
           {/* Desktop Overlay Add to Cart (Hidden on mobile) */}
-          <div className="hidden lg:flex absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center backdrop-blur-[2px] z-20">
+          <div className="hidden lg:flex absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center backdrop-blur-[2px] z-10">
              <motion.button 
                whileHover={{ scale: 1.1 }}
                whileTap={{ scale: 0.95 }}

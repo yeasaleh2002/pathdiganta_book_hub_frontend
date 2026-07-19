@@ -100,8 +100,10 @@ export const OrdersTab = () => {
           <p className="text-gray-500 font-semibold">You haven't placed any orders yet.</p>
         </div>
       ) : (
-        orders.map(order => (
-          <div key={order._id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm">
+        orders.map(order => {
+          const orderItems = order.items || order.orderItems || [];
+          return (
+          <div key={order.id || order._id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm">
             
             <div className="bg-gray-50 dark:bg-gray-950 p-5 border-b border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div className="flex flex-col sm:flex-row gap-4 sm:gap-10 text-sm">
@@ -134,11 +136,11 @@ export const OrdersTab = () => {
             </div>
 
             <div className="p-6 flex flex-col gap-5">
-              {order.items.map((item: any, index: number) => (
+              {orderItems.length > 0 ? orderItems.map((item: any, index: number) => (
                 <div key={index} className="flex justify-between items-center gap-4 border-b border-gray-100 dark:border-gray-800 pb-5 last:border-0 last:pb-0">
                   <div className="flex-1">
-                    <h4 className="font-bold text-gray-900 dark:text-white text-base line-clamp-1">{item.title || item.book?.title}</h4>
-                    <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 mt-1">Qty: {item.quantity || item.qty} × ৳{item.price}</p>
+                    <h4 className="font-bold text-gray-900 dark:text-white text-base line-clamp-1">{item.title || item.book?.title || 'Unknown Item'}</h4>
+                    <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 mt-1">Qty: {item.quantity || item.qty || 1} × ৳{item.price || 0}</p>
                   </div>
                   
                   {order.orderStatus === 'DELIVERED' && !item.reviewed && (
@@ -155,10 +157,13 @@ export const OrdersTab = () => {
                     </span>
                   )}
                 </div>
-              ))}
+              )) : (
+                <div className="text-sm text-gray-500">No items found for this order.</div>
+              )}
             </div>
           </div>
-        ))
+        );
+        })
       )}
 
       {/* 5-Star Interactive Review Submission Modal */}

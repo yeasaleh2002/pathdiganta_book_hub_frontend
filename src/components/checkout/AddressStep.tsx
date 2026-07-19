@@ -6,14 +6,21 @@ import toast from 'react-hot-toast';
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://pathdiganta-book-hub-backend.vercel.app";
 
-export const AddressStep = ({ onComplete }: { onComplete: (address: any) => void }) => {
+export const AddressStep = ({ onComplete, onAddressSelect }: { onComplete: (address: any) => void, onAddressSelect?: (address: any) => void }) => {
   const [addresses, setAddresses] = useState<any[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [newAddress, setNewAddress] = useState({ title: '', phone: '', addressLine: '' });
+  const [newAddress, setNewAddress] = useState<any>({ 
+    title: '', 
+    phone: '', 
+    addressLine: '',
+    isInsideDhaka: true,
+    district: '',
+    thana: ''
+  });
 
   const fetchAddresses = async () => {
     setIsLoading(true);
@@ -27,7 +34,9 @@ export const AddressStep = ({ onComplete }: { onComplete: (address: any) => void
         setAddresses(data.addresses);
         if (data.addresses.length > 0 && !selectedId) {
           const defaultAddr = data.addresses.find((a: any) => a.isDefault) || data.addresses[0];
-          setSelectedId(defaultAddr._id);
+          const defaultId = defaultAddr._id || defaultAddr.id;
+          setSelectedId(defaultId);
+          if (onAddressSelect) onAddressSelect(defaultAddr);
         }
       }
     } catch (error) {
@@ -41,33 +50,57 @@ export const AddressStep = ({ onComplete }: { onComplete: (address: any) => void
     fetchAddresses();
   }, []);
 
+  const handleSelectAddress = (addr: any) => {
+    setSelectedId(addr._id || addr.id);
+    if (onAddressSelect) onAddressSelect(addr);
+  };
+
   const handleSaveAddress = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newAddress.title || !newAddress.phone || !newAddress.addressLine) {
-      toast.error("Please fill in all required fields.");
+      toast.error("Please fill in Title, Phone, and Address Line.");
+      return;
+    }
+
+    if (!newAddress.isInsideDhaka && (!newAddress.district || !newAddress.thana)) {
+      toast.error("District and Thana are required when outside Dhaka.");
       return;
     }
 
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem('token');
+      
+      const payload: any = {
+        title: newAddress.title,
+        phone: newAddress.phone,
+        addressLine: newAddress.addressLine,
+        isInsideDhaka: newAddress.isInsideDhaka,
+        isDefault: false
+      };
+
+      if (!newAddress.isInsideDhaka) {
+        payload.district = newAddress.district;
+        payload.thana = newAddress.thana;
+      }
+
       const res = await fetch(`${API_URL}/api/v1/addresses`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(newAddress)
+        body: JSON.stringify(payload)
       });
       
       const data = await res.json();
       if (res.ok && data.success) {
         toast.success("Address added successfully");
         setIsAdding(false);
-        setNewAddress({ title: '', phone: '', addressLine: '' });
+        setNewAddress({ title: '', phone: '', addressLine: '', isInsideDhaka: true, district: '', thana: '' });
         fetchAddresses();
       } else {
-        toast.error(data.message || "Failed to save address");
+        toast.error(data.message || data.errors?.[0]?.message || "Failed to save address");
       }
     } catch (error) {
       toast.error("An error occurred while saving the address");
@@ -91,6 +124,23 @@ export const AddressStep = ({ onComplete }: { onComplete: (address: any) => void
 
       {isAdding ? (
         <form className="space-y-5 animate-in fade-in zoom-in-95 duration-200" onSubmit={handleSaveAddress}>
+          <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-xl w-full mb-4">
+            <button
+              type="button"
+              onClick={() => setNewAddress({...newAddress, isInsideDhaka: true})}
+              className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${newAddress.isInsideDhaka ? 'bg-white dark:bg-gray-900 text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+            >
+              Inside Dhaka City
+            </button>
+            <button
+              type="button"
+              onClick={() => setNewAddress({...newAddress, isInsideDhaka: false})}
+              className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${!newAddress.isInsideDhaka ? 'bg-white dark:bg-gray-900 text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+            >
+              Outside Dhaka City
+            </button>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Location Title (e.g. Home, Office)</label>
@@ -101,6 +151,25 @@ export const AddressStep = ({ onComplete }: { onComplete: (address: any) => void
               <input type="tel" value={newAddress.phone} onChange={e => setNewAddress({...newAddress, phone: e.target.value})} required placeholder="01XXXXXXXXX" className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" />
             </div>
           </div>
+
+          {!newAddress.isInsideDhaka && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">District</label>
+                <select value={newAddress.district} onChange={e => setNewAddress({...newAddress, district: e.target.value})} required className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition-shadow cursor-pointer">
+                  <option value="">Select District</option>
+                  {[
+                    "Bagerhat", "Bandarban", "Barguna", "Barishal", "Bhola", "Bogura", "Brahmanbaria", "Chandpur", "Chapai Nawabganj", "Chattogram", "Chuadanga", "Cox's Bazar", "Cumilla", "Dinajpur", "Faridpur", "Feni", "Gaibandha", "Gazipur", "Gopalganj", "Habiganj", "Jamalpur", "Jashore", "Jhalokati", "Jhenaidah", "Joypurhat", "Khagrachari", "Khulna", "Kishoreganj", "Kurigram", "Kushtia", "Lakshmipur", "Lalmonirhat", "Madaripur", "Magura", "Manikganj", "Meherpur", "Moulvibazar", "Munshiganj", "Mymensingh", "Naogaon", "Narail", "Narayanganj", "Narsingdi", "Natore", "Netrokona", "Nilphamari", "Noakhali", "Pabna", "Panchagarh", "Patuakhali", "Pirojpur", "Rajbari", "Rajshahi", "Rangamati", "Rangpur", "Satkhira", "Shariatpur", "Sherpur", "Sirajgonj", "Sunamganj", "Sylhet", "Tangail", "Thakurgaon"
+                  ].map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Thana / Upazila</label>
+                <input type="text" value={newAddress.thana} onChange={e => setNewAddress({...newAddress, thana: e.target.value})} required placeholder="Thana" className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" />
+              </div>
+            </div>
+          )}
+
           <div>
             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Detailed Address (House, Road, Area)</label>
             <textarea value={newAddress.addressLine} onChange={e => setNewAddress({...newAddress, addressLine: e.target.value})} required rows={3} placeholder="Please provide exact location details..." className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition-shadow resize-none" />
@@ -127,11 +196,11 @@ export const AddressStep = ({ onComplete }: { onComplete: (address: any) => void
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           {addresses.map(addr => (
             <div 
-              key={addr._id} 
-              onClick={() => setSelectedId(addr._id)}
-              className={`relative p-5 rounded-2xl border-2 cursor-pointer transition-all ${selectedId === addr._id ? 'border-blue-600 bg-blue-50/50 dark:bg-blue-900/10 shadow-[0_0_0_1px_rgba(37,99,235,1)]' : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-gray-600'}`}
+              key={addr.id || addr._id} 
+              onClick={() => handleSelectAddress(addr)}
+              className={`relative p-5 rounded-2xl border-2 cursor-pointer transition-all ${selectedId === (addr.id || addr._id) ? 'border-blue-600 bg-blue-50/50 dark:bg-blue-900/10 shadow-[0_0_0_1px_rgba(37,99,235,1)]' : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-gray-600'}`}
             >
-              {selectedId === addr._id && <CheckCircle2 className="absolute top-4 right-4 text-blue-600" size={24} />}
+              {selectedId === (addr.id || addr._id) && <CheckCircle2 className="absolute top-4 right-4 text-blue-600" size={24} />}
               <div className="font-bold text-gray-900 dark:text-white mb-1.5 flex items-center gap-2">
                 {addr.title} 
                 {addr.isDefault && <span className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">Default</span>}
@@ -146,7 +215,8 @@ export const AddressStep = ({ onComplete }: { onComplete: (address: any) => void
       {!isAdding && addresses.length > 0 && (
         <div className="flex justify-end border-t border-gray-100 dark:border-gray-800 pt-6">
           <button 
-            onClick={() => onComplete(addresses.find(a => a._id === selectedId))} 
+            onClick={() => onComplete(addresses.find(a => (a.id || a._id) === selectedId))} 
+
             disabled={!selectedId}
             className="w-full md:w-auto px-10 py-3.5 bg-gray-900 hover:bg-black dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold rounded-xl transition-colors shadow-sm disabled:opacity-50"
           >

@@ -1,7 +1,13 @@
 import React from 'react';
 import { Gift, Zap, ShieldCheck } from 'lucide-react';
+import { useAuthStore } from '@/store/authStore';
+import Link from 'next/link';
 
 export const RewardsTab = () => {
+  const { user } = useAuthStore();
+  const points = user?.loyaltyPoints || 0;
+  const equivalentDiscount = (points * 0.02).toFixed(2); // 1000 points = 20 Taka (1 point = 0.02 Taka)
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <h2 className="text-2xl font-black text-gray-900 dark:text-white flex items-center gap-2 mb-8">
@@ -12,8 +18,8 @@ export const RewardsTab = () => {
         <div className="bg-gradient-to-br from-amber-500 to-orange-600 rounded-3xl p-10 text-white shadow-xl relative overflow-hidden">
           <Gift size={160} className="absolute -bottom-8 -right-8 opacity-20 transform -rotate-12" />
           <p className="font-bold text-amber-100 mb-2 uppercase tracking-widest text-xs">Available Balance</p>
-          <div className="text-6xl font-black mb-4 tracking-tight">450 <span className="text-3xl font-bold opacity-80">pts</span></div>
-          <p className="text-sm font-semibold mb-8 opacity-90 max-w-[200px] leading-relaxed">Equivalent to ৳45.00 discount on your next checkout.</p>
+          <div className="text-6xl font-black mb-4 tracking-tight">{points} <span className="text-3xl font-bold opacity-80">pts</span></div>
+          <p className="text-sm font-semibold mb-8 opacity-90 max-w-[200px] leading-relaxed">Equivalent to ৳{equivalentDiscount} discount on your next checkout.</p>
           <button className="px-8 py-3.5 bg-white text-orange-600 font-black rounded-xl shadow-sm hover:scale-105 transition-transform">
             Redeem Points Now
           </button>
@@ -28,7 +34,7 @@ export const RewardsTab = () => {
             <div>
               <h3 className="font-black text-gray-900 dark:text-white text-lg">How to earn points?</h3>
               <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
-                Earn exactly 10 points for every ৳100 you spend on Pathdigonto books. Points are instantly credited upon delivery confirmation.
+                Earn 60 points for every ৳1000 you spend on Pathdigonto books. Points are instantly credited upon delivery confirmation.
               </p>
             </div>
           </div>
@@ -40,10 +46,15 @@ export const RewardsTab = () => {
               <ShieldCheck size={24} />
             </div>
             <div>
-              <h3 className="font-black text-gray-900 dark:text-white text-lg">Review Multipliers</h3>
+              <h3 className="font-black text-gray-900 dark:text-white text-lg">Company Review Bonus</h3>
               <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
-                Leaving a verified, written review on a book you've purchased grants a flat 20 bonus points directly to your wallet!
+                Leave a 5-star review for our company to instantly earn 1500 points! 4-star earns 1000 points, and up to 3-stars earn 500 points.
               </p>
+              <Link href="/company-review">
+                <button className="mt-4 px-5 py-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-sm font-bold rounded-lg hover:bg-emerald-200 dark:hover:bg-emerald-900/50 transition-colors">
+                  Add a Review
+                </button>
+              </Link>
             </div>
           </div>
 

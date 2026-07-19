@@ -9,16 +9,20 @@ import { useCartStore } from '@/store/cartStore';
 import { useRouter } from 'next/navigation';
 import { CheckCircle2, PackageCheck } from 'lucide-react';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items } = useCartStore();
+  const { items, clearCart } = useCartStore();
   const [mounted, setMounted] = useState(false);
   
   // Checkout State Machine
   const [step, setStep] = useState(1);
   const [address, setAddress] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('');
+  
+  // Order Summary State (lifted up for API submission)
+  const [orderSummary, setOrderSummary] = useState({ couponCode: '', pointsUsed: 0 });
 
   useEffect(() => {
     setMounted(true);
@@ -37,11 +41,53 @@ export default function CheckoutPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handlePaymentComplete = (method: string) => {
+  const handlePaymentComplete = async (method: string) => {
     setPaymentMethod(method);
-    // In actual implementation, payload goes to POST /api/orders
-    const orderId = `PHB-${Math.floor(Math.random() * 900000) + 100000}`;
-    router.push(`/order-confirmation/${orderId}`);
+    
+    try {
+      const token = localStorage.getItem('token');
+      const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://pathdiganta-book-hub-backend.vercel.app";
+      
+      const payload: any = {
+        shippingAddress: (address as any)?._id || (address as any)?.id,
+        paymentMethod: method,
+        items: items.map(item => ({
+          book: item.id || (item as any)._id,
+          quantity: item.quantity
+        }))
+      };
+
+      if (orderSummary.couponCode) {
+        payload.couponCode = orderSummary.couponCode;
+      }
+      
+      if (orderSummary.pointsUsed > 0) {
+        payload.pointsUsed = orderSummary.pointsUsed;
+      }
+
+      const res = await fetch(`${API_URL}/api/v1/orders/checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok && data.success) {
+        const orderId = data.order?._id || data.order?.id || `PHB-${Math.floor(Math.random() * 900000) + 100000}`;
+        // Clear cart after successful checkout
+        clearCart();
+        router.push(`/order-confirmation/${orderId}`);
+      } else {
+        toast.error(data.message || data.errors?.[0]?.message || 'Failed to place order');
+      }
+    } catch (error) {
+      console.error("Checkout failed:", error);
+      toast.error("An error occurred during checkout.");
+    }
   };
 
   return (
@@ -78,7 +124,10 @@ export default function CheckoutPage() {
             
             {/* Step 1 Lock/Unlock logic */}
             <div className={`transition-all duration-500 ${step !== 1 ? 'opacity-50 pointer-events-none hidden lg:block' : ''}`}>
-              <AddressStep onComplete={handleAddressComplete} />
+              <AddressStep 
+                onComplete={handleAddressComplete} 
+                onAddressSelect={(selectedAddr) => setAddress(selectedAddr)}
+              />
             </div>
 
             {/* Step 2 Injection logic */}
@@ -100,7 +149,7 @@ export default function CheckoutPage() {
 
           {/* Sticky Order Price Summary (Right) */}
           <div className="w-full lg:w-[420px] flex-shrink-0">
-            <OrderSummary />
+            <OrderSummary address={address} onSummaryChange={setOrderSummary} />
           </div>
 
         </div>

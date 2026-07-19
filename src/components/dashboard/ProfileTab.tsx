@@ -86,7 +86,8 @@ export const ProfileTab = () => {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full p-3.5 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white font-bold outline-none focus:border-blue-500 transition-colors" 
+                placeholder="e.g. John Doe"
+                className="w-full p-4 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white font-bold outline-none focus:border-blue-500 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-600" 
               />
             </div>
             <div>
@@ -95,7 +96,7 @@ export const ProfileTab = () => {
                 type="email" 
                 disabled 
                 value={user?.email || ''} 
-                className="w-full p-3.5 border-2 border-gray-200 dark:border-gray-800 rounded-xl bg-gray-100 dark:bg-gray-950/50 text-gray-500 font-bold cursor-not-allowed outline-none" 
+                className="w-full p-4 border-2 border-gray-200 dark:border-gray-800 rounded-xl bg-gray-100 dark:bg-gray-950/50 text-gray-500 font-bold cursor-not-allowed outline-none" 
               />
             </div>
           </div>
@@ -107,7 +108,8 @@ export const ProfileTab = () => {
               name="phone"
               value={formData.phone}
               onChange={handleChange}
-              className="w-full max-w-md p-3.5 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white font-bold outline-none focus:border-blue-500 transition-colors" 
+              placeholder="e.g. 01700000000"
+              className="w-full max-w-md p-4 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white font-bold outline-none focus:border-blue-500 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-600" 
             />
           </div>
 
@@ -121,16 +123,16 @@ export const ProfileTab = () => {
                 name="currentPassword"
                 value={formData.currentPassword}
                 onChange={handleChange}
-                placeholder="Enter Current Password" 
-                className="w-full p-3.5 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white font-bold outline-none focus:border-blue-500 transition-colors" 
+                placeholder="Enter Current Password..." 
+                className="w-full p-4 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white font-bold outline-none focus:border-blue-500 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-600" 
               />
               <input 
                 type="password" 
                 name="newPassword"
                 value={formData.newPassword}
                 onChange={handleChange}
-                placeholder="Enter New Password" 
-                className="w-full p-3.5 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white font-bold outline-none focus:border-blue-500 transition-colors" 
+                placeholder="Enter New Password..." 
+                className="w-full p-4 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white font-bold outline-none focus:border-blue-500 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-600" 
               />
             </div>
           </div>
