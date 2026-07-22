@@ -30,7 +30,7 @@ export const Footer = () => {
               className="h-12 w-auto object-contain drop-shadow-sm"
             />
           </Link>
-          <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400 mt-2">
+          <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300 mt-2">
             {t("description")}
           </p>
           <div className="flex gap-4 mt-2">
@@ -67,17 +67,17 @@ export const Footer = () => {
           <ul className="flex flex-col gap-4 text-sm">
             <li className="flex items-start gap-3">
               <MapPin size={18} className="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-              <span className="text-gray-600 dark:text-gray-400">Dhaka, Bangladesh</span>
+              <span className="text-gray-600 dark:text-gray-300">Dhaka, Bangladesh</span>
             </li>
             <li className="flex items-center gap-3">
               <Phone size={18} className="text-blue-600 dark:text-blue-400 flex-shrink-0" />
-              <a href="https://wa.me/8801633011001" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              <a href="https://wa.me/8801633011001" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 +880 1633-011001 (WhatsApp)
               </a>
             </li>
             <li className="flex items-center gap-3">
               <Mail size={18} className="text-blue-600 dark:text-blue-400 flex-shrink-0" />
-              <a href="mailto:pathdigantabookhub@gmail.com" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              <a href="mailto:pathdigantabookhub@gmail.com" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 pathdigantabookhub@gmail.com
               </a>
             </li>
@@ -86,7 +86,7 @@ export const Footer = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 mt-12 pt-8 border-t border-gray-200 dark:border-gray-800 flex flex-col md:flex-row justify-center md:justify-between items-center gap-4 relative z-10">
-        <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+        <p className="text-xs text-gray-500 dark:text-gray-300 text-center">
           © {new Date().getFullYear()} Pathdigonto Book Hub. {t("rights")}.
         </p>
         <div className="flex items-center gap-2">

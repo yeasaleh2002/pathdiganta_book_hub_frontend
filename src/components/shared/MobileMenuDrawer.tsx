@@ -21,7 +21,7 @@ export const MobileMenuDrawer = () => {
     <div className="lg:hidden">
       <button 
         onClick={toggleDrawer}
-        className="p-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 focus:outline-none"
+        className="p-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 focus:outline-none"
         aria-label="Open Menu"
       >
         <Menu size={24} />
@@ -42,7 +42,11 @@ export const MobileMenuDrawer = () => {
         }`}
       >
         <div className="flex justify-between items-center p-5 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
-          <span className="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">Pathdigonto</span>
+          <img 
+            src="/logo.png" 
+            alt="Pathdigonto Book Hub" 
+            className="h-8 w-auto object-contain drop-shadow-sm"
+          />
           <button onClick={toggleDrawer} className="p-2 text-gray-500 hover:text-red-500 bg-gray-200/50 dark:bg-gray-800 rounded-full transition-colors">
             <X size={20} />
           </button>
@@ -102,7 +106,7 @@ export const MobileMenuDrawer = () => {
             <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Categories</h3>
             <div className="flex flex-col gap-3">
               {categories.map((cat, i) => (
-                <Link key={i} onClick={toggleDrawer} href={`/books?category=${encodeURIComponent(cat.toLowerCase())}`} className="text-gray-600 dark:text-gray-300 font-medium hover:text-blue-600 dark:hover:text-blue-400 flex items-center">
+                <Link key={i} onClick={toggleDrawer} href={`/books?category=${encodeURIComponent(cat.toLowerCase())}`} className="text-gray-600 dark:text-gray-200 font-medium hover:text-blue-600 dark:hover:text-blue-400 flex items-center">
                   <div className="w-1.5 h-1.5 rounded-full bg-blue-200 dark:bg-blue-900 mr-3"></div>
                   {cat}
                 </Link>
