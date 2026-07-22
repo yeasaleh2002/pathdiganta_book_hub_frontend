@@ -44,9 +44,11 @@ export const Header = () => {
           <div className="flex items-center gap-2">
             <MobileMenuDrawer />
             <Link href="/" className="flex items-center gap-2">
-              <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
-                Pathdigonto
-              </span>
+              <img 
+                src="/logo.png" 
+                alt="Pathdigonto Book Hub" 
+                className="h-12 w-auto object-contain drop-shadow-sm"
+              />
             </Link>
           </div>
 

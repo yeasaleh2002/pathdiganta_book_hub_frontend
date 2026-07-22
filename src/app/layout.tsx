@@ -20,6 +20,10 @@ export const metadata: Metadata = {
     template: "%s | Pathdigonto Book Hub",
   },
   description: "A high-traffic, secure, single-vendor online bookstore.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({
