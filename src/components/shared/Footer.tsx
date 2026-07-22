@@ -10,8 +10,12 @@ export const Footer = () => {
   if (pathname?.startsWith('/admin')) return null;
 
   return (
-    <footer className="w-full bg-gray-50 dark:bg-gray-950 text-gray-700 dark:text-gray-300 pt-16 pb-8 border-t border-gray-200 dark:border-gray-800 transition-colors mt-auto">
-      <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+    <footer className="w-full bg-gray-50 dark:bg-[#0a0a0a] pt-16 pb-8 border-t border-gray-200 dark:border-gray-800 transition-colors mt-auto relative overflow-hidden">
+      {/* Abstract Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-blue-600/5 to-transparent dark:from-blue-900/10 pointer-events-none" />
+      <div className="absolute top-10 right-0 w-96 h-96 bg-blue-500/5 dark:bg-blue-600/5 rounded-full blur-3xl pointer-events-none" />
+      
+      <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 relative z-10">
         
         {/* Column 1: Company Info */}
         <div className="flex flex-col gap-4">
@@ -77,7 +81,7 @@ export const Footer = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 mt-12 pt-8 border-t border-gray-200 dark:border-gray-800 flex flex-col md:flex-row justify-center md:justify-between items-center gap-4">
+      <div className="max-w-7xl mx-auto px-4 mt-12 pt-8 border-t border-gray-200 dark:border-gray-800 flex flex-col md:flex-row justify-center md:justify-between items-center gap-4 relative z-10">
         <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
           © {new Date().getFullYear()} Pathdigonto Book Hub. All rights reserved.
         </p>

@@ -50,24 +50,27 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleSSO = async () => {
-    setIsGoogleLoading(true);
-    try {
-      const response = await googleLogin("mock-google-token-data");
-      if (response?.user?.role === 'ADMIN') {
-        router.push('/admin/dashboard');
-      } else {
-        router.push('/dashboard');
-      }
-    } catch (err: any) {
-      setServerError("Google authentication failed.");
-    } finally {
-      setIsGoogleLoading(false);
-    }
-  };
+//   const handleGoogleSSO = async () => {
+//     setIsGoogleLoading(true);
+//     try {
+//       const response = await googleLogin("mock-google-token-data");
+//       if (response?.user?.role === 'ADMIN') {
+//         router.push('/admin/dashboard');
+//       } else {
+//         router.push('/dashboard');
+//       }
+//     } catch (err: any) {
+//       setServerError("Google authentication failed.");
+//     } finally {
+//       setIsGoogleLoading(false);
+//     }
+//   };
 
   return (
-    <div className="min-h-screen flex w-full bg-white dark:bg-[#0a0a0a]">
+    <div className="min-h-screen flex w-full bg-white dark:bg-[#0a0a0a] relative overflow-hidden">
+      {/* Abstract Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-sky-600/10 to-transparent dark:from-sky-900/20 pointer-events-none" />
+      <div className="absolute top-40 right-0 w-96 h-96 bg-sky-500/10 dark:bg-sky-600/10 rounded-full blur-3xl pointer-events-none" />
       {showVerification && (
         <VerificationModal 
           email={unverifiedEmail} 

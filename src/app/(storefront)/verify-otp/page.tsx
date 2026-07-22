@@ -153,7 +153,10 @@ function VerifyOtpContent() {
     : '';
 
   return (
-    <div className="min-h-screen flex w-full bg-white dark:bg-[#0a0a0a]">
+    <div className="min-h-screen flex w-full bg-white dark:bg-[#0a0a0a] relative overflow-hidden">
+      {/* Abstract Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-sky-600/10 to-transparent dark:from-sky-900/20 pointer-events-none z-0" />
+      <div className="absolute top-40 right-0 w-96 h-96 bg-sky-500/10 dark:bg-sky-600/10 rounded-full blur-3xl pointer-events-none z-0" />
 
       {/* Left Branding Panel */}
       <div className="hidden lg:flex w-1/2 bg-indigo-950 relative overflow-hidden items-center justify-center">

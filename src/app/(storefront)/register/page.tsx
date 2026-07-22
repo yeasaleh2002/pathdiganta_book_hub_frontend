@@ -40,20 +40,23 @@ export default function RegisterPage() {
     }
   };
 
-  const handleGoogleSSO = async () => {
-    setIsGoogleLoading(true);
-    try {
-      await googleLogin("mock-google-token-data");
-      router.push('/dashboard');
-    } catch (err: any) {
-      setServerError("Google authentication failed.");
-    } finally {
-      setIsGoogleLoading(false);
-    }
-  };
+//   const handleGoogleSSO = async () => {
+//     setIsGoogleLoading(true);
+//     try {
+//       await googleLogin("mock-google-token-data");
+//       router.push('/dashboard');
+//     } catch (err: any) {
+//       setServerError("Google authentication failed.");
+//     } finally {
+//       setIsGoogleLoading(false);
+//     }
+//   };
 
   return (
-    <div className="min-h-screen flex w-full bg-white dark:bg-[#0a0a0a]">
+    <div className="min-h-screen flex w-full bg-white dark:bg-[#0a0a0a] relative overflow-hidden">
+      {/* Abstract Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-sky-600/10 to-transparent dark:from-sky-900/20 pointer-events-none" />
+      <div className="absolute top-40 right-0 w-96 h-96 bg-sky-500/10 dark:bg-sky-600/10 rounded-full blur-3xl pointer-events-none" />
       
       {/* Centered Authentication Form */}
       <div className="w-full flex items-center justify-center px-4 py-8 sm:p-12 lg:p-24 animate-in fade-in slide-in-from-bottom-8 duration-700">
