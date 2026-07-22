@@ -16,17 +16,14 @@ const fetchBooks = async (params: any) => {
   
   if (params.page) query.append('page', params.page);
   if (params.limit) query.append('limit', params.limit);
-  if (params.search) query.append('search', params.search);
-  if (params.category) query.append('category', params.category);
-  if (params.author) query.append('author', params.author);
-  if (params.publisher) query.append('publisher', params.publisher);
-  if (params.minPrice) query.append('minPrice', params.minPrice);
-  if (params.maxPrice) query.append('maxPrice', params.maxPrice);
+  if (params.q) query.append('q', params.q);
+  if (params.categoryId) query.append('categoryId', params.categoryId);
+  if (params.authorId) query.append('authorId', params.authorId);
+  if (params.publisherId) query.append('publisherId', params.publisherId);
   if (params.sortBy) query.append('sortBy', params.sortBy);
-  if (params.sortOrder) query.append('sortOrder', params.sortOrder);
 
   try {
-    const res = await fetch(`${API_URL}/api/v1/books?${query.toString()}`, {
+    const res = await fetch(`${API_URL}/api/v1/books/search?${query.toString()}`, {
       next: { revalidate: 60 } // Cache for 60 seconds
     });
     const data = await res.json();
@@ -65,7 +62,7 @@ const BookGridResults = async ({ searchParams }: { searchParams: any }) => {
 
   return (
     <>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-4 md:gap-6">
         {result.data.map((book: any) => (
           <BookCard key={book.id || book._id} book={{...book, id: book.id || book._id}} />
         ))}
@@ -85,7 +82,7 @@ export default async function BooksExplorerPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const resolvedParams = await searchParams;
-  const searchQuery = resolvedParams.search as string;
+  const searchQuery = resolvedParams.q as string;
 
   return (
     <div className="w-full min-h-[calc(100vh-80px)] bg-gray-50 dark:bg-[#0a0a0a] relative flex flex-col md:flex-row items-start">
@@ -101,8 +98,25 @@ export default async function BooksExplorerPage({
         {/* Main Grid Content wrapped in Suspense for loading state shifts */}
         <div className="flex-1 w-full min-w-0 relative z-10">
           <div className="w-full max-w-[1200px] mx-auto p-4 sm:p-6 lg:p-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+            
+            <form action="/books" method="GET" className="mb-8 flex w-full rounded-2xl border-2 border-gray-200 dark:border-gray-800 focus-within:border-blue-600 dark:focus-within:border-blue-500 overflow-hidden bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-sm transition-all relative z-20">
+              <div className="flex items-center pl-5 text-gray-400">
+                <Search size={20} />
+              </div>
+              <input 
+                type="text" 
+                name="q" 
+                defaultValue={searchQuery || ''} 
+                placeholder="Search for books by title, keyword..." 
+                className="flex-1 bg-transparent px-4 py-3.5 outline-none text-base font-semibold text-gray-900 dark:text-white placeholder-gray-400" 
+              />
+              <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3.5 transition-colors flex items-center justify-center cursor-pointer font-black text-sm uppercase tracking-wider">
+                Search
+              </button>
+            </form>
+
             {searchQuery && (
-              <h1 className="text-2xl font-black text-gray-900 dark:text-white mb-6">
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
                 Search Results for <span className="text-blue-600">"{searchQuery}"</span>
               </h1>
             )}

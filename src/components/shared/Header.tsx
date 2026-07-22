@@ -72,39 +72,41 @@ export const Header = () => {
           </div>
 
           {/* Search Bar - Hidden on small mobile, expands on md+ */}
-          <div className="hidden md:flex flex-1 max-w-2xl items-center mx-4 group relative">
-            <form 
-              onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.currentTarget);
-                const query = formData.get('search');
-                const category = formData.get('category');
-                
-                const params = new URLSearchParams();
-                if (query) params.set('search', query as string);
-                if (category && category !== 'all') params.set('category', category as string);
-                
-                window.location.href = `/books?${params.toString()}`;
-              }}
-              className="flex w-full rounded-full border border-gray-300 dark:border-gray-700 focus-within:border-blue-600 dark:focus-within:border-blue-500 overflow-hidden bg-gray-50/50 dark:bg-gray-900/50 transition-all shadow-inner"
-            >
-              <select name="category" className="bg-transparent border-none text-sm px-4 py-2 outline-none text-gray-700 dark:text-gray-300 cursor-pointer hidden lg:block border-r border-gray-200 dark:border-gray-700 font-medium max-w-[180px] truncate">
-                <option value="all">All Categories</option>
-                {categories.map((c: any) => (
-                  <option key={c._id || c.id} value={c._id || c.id}>{c.name || c.title}</option>
-                ))}
-              </select>
-              <input 
-                name="search"
-                type="text" 
-                placeholder="Search for books, authors, publishers..." 
-                className="flex-1 bg-transparent border-none px-4 py-2 outline-none text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 font-medium"
-              />
-              <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 transition-colors flex items-center justify-center cursor-pointer">
-                <Search size={18} />
-              </button>
-            </form>
-          </div>
+          {!pathname?.startsWith('/books') && (
+            <div className="hidden md:flex flex-1 max-w-2xl items-center mx-4 group relative">
+              <form 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const formData = new FormData(e.currentTarget);
+                  const query = formData.get('search');
+                  const category = formData.get('category');
+                  
+                  const params = new URLSearchParams();
+                  if (query) params.set('q', query as string);
+                  if (category && category !== 'all') params.set('categoryId', category as string);
+                  
+                  window.location.href = `/books?${params.toString()}`;
+                }}
+                className="flex w-full rounded-full border border-gray-300 dark:border-gray-700 focus-within:border-blue-600 dark:focus-within:border-blue-500 overflow-hidden bg-gray-50/50 dark:bg-gray-900/50 transition-all shadow-inner"
+              >
+                <select name="category" className="bg-transparent border-none text-sm px-4 py-2 outline-none text-gray-700 dark:text-gray-300 cursor-pointer hidden lg:block border-r border-gray-200 dark:border-gray-700 font-medium max-w-[180px] truncate">
+                  <option value="all">All Categories</option>
+                  {categories.map((c: any) => (
+                    <option key={c._id || c.id} value={c._id || c.id}>{c.name || c.title}</option>
+                  ))}
+                </select>
+                <input 
+                  name="search"
+                  type="text" 
+                  placeholder="Search for books, authors, publishers..." 
+                  className="flex-1 bg-transparent border-none px-4 py-2 outline-none text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 font-medium"
+                />
+                <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 transition-colors flex items-center justify-center cursor-pointer">
+                  <Search size={18} />
+                </button>
+              </form>
+            </div>
+          )}
 
           {/* Icons & Actions */}
           <div className="flex items-center gap-2 sm:gap-4">

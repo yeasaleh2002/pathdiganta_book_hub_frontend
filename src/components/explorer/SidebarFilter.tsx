@@ -5,10 +5,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Filter, X, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 
 const SORT_OPTIONS = [
-  { value: 'rating_desc', label: 'Top Rated' },
+  { value: 'newest', label: 'Newest Arrivals' },
   { value: 'price_asc', label: 'Price: Low to High' },
   { value: 'price_desc', label: 'Price: High to Low' },
-  { value: 'createdAt_desc', label: 'Newest Arrivals' },
+  { value: 'title_asc', label: 'Title: A to Z' },
 ];
 
 export const SidebarFilter = () => {
@@ -18,17 +18,10 @@ export const SidebarFilter = () => {
   
   const [isOpen, setIsOpen] = useState(false);
   
-  const initialSortBy = searchParams.get('sortBy');
-  const initialSortOrder = searchParams.get('sortOrder');
-  let initialSortValue = 'rating_desc';
-  if (initialSortBy && initialSortOrder) {
-    initialSortValue = `${initialSortBy}_${initialSortOrder}`;
-  }
-
-  const [sort, setSort] = useState(initialSortValue);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(searchParams.get('category')?.split(',').filter(Boolean) || []);
-  const [selectedAuthors, setSelectedAuthors] = useState<string[]>(searchParams.get('author')?.split(',').filter(Boolean) || []);
-  const [selectedPublishers, setSelectedPublishers] = useState<string[]>(searchParams.get('publisher')?.split(',').filter(Boolean) || []);
+  const [sort, setSort] = useState(searchParams.get('sortBy') || 'newest');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(searchParams.get('categoryId')?.split(',').filter(Boolean) || []);
+  const [selectedAuthors, setSelectedAuthors] = useState<string[]>(searchParams.get('authorId')?.split(',').filter(Boolean) || []);
+  const [selectedPublishers, setSelectedPublishers] = useState<string[]>(searchParams.get('publisherId')?.split(',').filter(Boolean) || []);
 
   const [categories, setCategories] = useState<any[]>([]);
   const [authors, setAuthors] = useState<any[]>([]);
@@ -72,23 +65,17 @@ export const SidebarFilter = () => {
   const updateFilters = () => {
     const params = new URLSearchParams(searchParams.toString());
     
-    if (sort) {
-      const [sortBy, sortOrder] = sort.split('_');
-      params.set('sortBy', sortBy);
-      params.set('sortOrder', sortOrder);
-    } else {
-      params.delete('sortBy');
-      params.delete('sortOrder');
-    }
+    if (sort) params.set('sortBy', sort);
+    else params.delete('sortBy');
     
-    if (selectedCategories.length) params.set('category', selectedCategories.join(','));
-    else params.delete('category');
+    if (selectedCategories.length) params.set('categoryId', selectedCategories.join(','));
+    else params.delete('categoryId');
     
-    if (selectedAuthors.length) params.set('author', selectedAuthors.join(','));
-    else params.delete('author');
+    if (selectedAuthors.length) params.set('authorId', selectedAuthors.join(','));
+    else params.delete('authorId');
 
-    if (selectedPublishers.length) params.set('publisher', selectedPublishers.join(','));
-    else params.delete('publisher');
+    if (selectedPublishers.length) params.set('publisherId', selectedPublishers.join(','));
+    else params.delete('publisherId');
     
     params.set('page', '1'); 
     
@@ -116,7 +103,7 @@ export const SidebarFilter = () => {
     setSelectedCategories([]);
     setSelectedAuthors([]);
     setSelectedPublishers([]);
-    setSort('rating_desc');
+    setSort('newest');
     router.push('/books');
     setIsOpen(false);
   };
