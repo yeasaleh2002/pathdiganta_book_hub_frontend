@@ -143,19 +143,19 @@ export const OrdersTab = () => {
                     <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 mt-1">Qty: {item.quantity || item.qty || 1} × ৳{item.price || 0}</p>
                   </div>
                   
-                  {order.orderStatus === 'DELIVERED' && !item.reviewed && (
+                  {/* order.orderStatus === 'DELIVERED' && !item.reviewed && (
                     <button 
                       onClick={() => openReviewModal(order, item)}
                       className="px-5 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-bold text-xs uppercase tracking-wider rounded-lg hover:border-blue-600 hover:text-blue-600 dark:hover:text-blue-400 dark:hover:border-blue-500 transition-colors shadow-sm cursor-pointer"
                     >
                       Write a Review
                     </button>
-                  )}
-                  {order.orderStatus === 'DELIVERED' && item.reviewed && (
+                  ) */}
+                  {/* order.orderStatus === 'DELIVERED' && item.reviewed && (
                     <span className="px-5 py-2 text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5 bg-gray-50 dark:bg-gray-950 rounded-lg">
                       <Star size={14} className="fill-current" /> Reviewed
                     </span>
-                  )}
+                  ) */}
                 </div>
               )) : (
                 <div className="text-sm text-gray-500">No items found for this order.</div>

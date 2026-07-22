@@ -113,7 +113,8 @@ export const ProfileTab = () => {
             />
           </div>
 
-          <div className="pt-8 border-t border-gray-200 dark:border-gray-800 mt-8">
+          {/* Hiding Security Credentials as requested */}
+          {/* <div className="pt-8 border-t border-gray-200 dark:border-gray-800 mt-8">
             <h3 className="text-xl font-black text-gray-900 dark:text-white mb-6 flex items-center gap-2">
               <Shield size={20} className="text-gray-400" /> Security Credentials
             </h3>
@@ -135,7 +136,7 @@ export const ProfileTab = () => {
                 className="w-full p-4 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white font-bold outline-none focus:border-blue-500 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-600" 
               />
             </div>
-          </div>
+          </div> */}
 
           <div className="pt-6 flex justify-end">
             <button 

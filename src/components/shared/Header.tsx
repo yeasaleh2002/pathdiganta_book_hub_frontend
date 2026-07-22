@@ -34,12 +34,16 @@ export const Header = () => {
   if (pathname?.startsWith("/admin")) return null;
 
   return (
-    <header className="w-full flex flex-col z-50 relative">
+    <header className="w-full flex flex-col z-50 sticky top-0">
       {/* Main Sticky Header */}
-      <div className={`w-full bg-white dark:bg-gray-950 shadow-sm transition-all duration-300 border-b border-gray-200/50 dark:border-gray-800/50 ${
-        isScrolled ? "sticky top-0 py-3" : "py-4"
+      <div className={`w-full bg-white dark:bg-[#0a0a0a] shadow-sm transition-all duration-300 border-b border-gray-200/50 dark:border-gray-800/50 relative ${
+        isScrolled ? "py-3" : "py-4"
       }`}>
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between gap-4">
+        {/* Abstract Background Elements */}
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-sky-600/10 to-transparent dark:from-sky-900/20 pointer-events-none z-0" />
+        <div className="absolute top-0 right-0 w-96 h-full bg-sky-500/10 dark:bg-sky-600/10 rounded-full blur-3xl pointer-events-none z-0 overflow-hidden" />
+        
+        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between gap-4 relative z-10">
           
           <div className="flex items-center gap-2">
             <MobileMenuDrawer />

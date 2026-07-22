@@ -6,12 +6,12 @@ import { Search, ArrowRight, BookOpen } from 'lucide-react';
 
 export const HeroSection = () => {
   return (
-    <div className="relative w-full overflow-hidden bg-white dark:bg-gray-950 pt-10 pb-16 lg:pt-20 lg:pb-24">
-      {/* Decorative Gradients */}
-      <div className="absolute top-0 -left-1/4 w-[150%] h-[150%] bg-gradient-to-tr from-blue-50 via-blue-100/50 to-purple-50 dark:from-blue-900/10 dark:via-purple-900/5 dark:to-transparent opacity-80 -z-10 rounded-[100%] blur-3xl transform rotate-12 pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-br from-blue-300/30 to-purple-300/30 dark:from-blue-600/10 dark:to-purple-600/10 blur-[100px] rounded-full pointer-events-none -z-10" />
+    <div className="relative w-full overflow-hidden bg-white dark:bg-[#0a0a0a] pt-10 pb-16 lg:pt-20 lg:pb-24">
+      {/* Abstract Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-sky-600/10 to-transparent dark:from-sky-900/20 pointer-events-none z-0" />
+      <div className="absolute top-40 right-0 w-96 h-96 bg-sky-500/10 dark:bg-sky-600/10 rounded-full blur-3xl pointer-events-none z-0" />
 
-      <div className="max-w-7xl mx-auto px-4 flex flex-col items-center text-center">
+      <div className="max-w-7xl mx-auto px-4 flex flex-col items-center text-center relative z-10">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold text-sm mb-6 border border-blue-100 dark:border-blue-800/50 backdrop-blur-sm animate-fade-in-up">
           <BookOpen size={16} />
           <span>Discover a Universe of Knowledge</span>
