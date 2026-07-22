@@ -7,7 +7,7 @@ import { Globe, Hash, Link2, Monitor, MapPin, Phone, Mail } from "lucide-react";
 
 export const Footer = () => {
   const pathname = usePathname();
-  if (pathname?.startsWith('/admin') || pathname?.startsWith('/dashboard') || pathname?.startsWith('/user')) return null;
+  if (pathname?.startsWith('/admin') || pathname?.startsWith('/dashboard') || pathname?.startsWith('/user') || pathname?.startsWith('/books')) return null;
 
   return (
     <footer className="w-full bg-gray-50 dark:bg-[#0a0a0a] pt-16 pb-8 border-t border-gray-200 dark:border-gray-800 transition-colors mt-auto relative overflow-hidden">

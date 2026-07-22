@@ -136,12 +136,6 @@ export default async function BookDetailsPage({ params }: { params: Promise<{ id
                 <p className="text-lg text-gray-600 dark:text-gray-400 mt-3">
                   by <Link href={`/books?author=${encodeURIComponent(book.author?.name || "")}`} className="font-bold text-blue-600 dark:text-blue-400 hover:underline">{book.author?.name}</Link>
                 </p>
-                <div className="flex items-center gap-4 mt-4">
-                  <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-500 px-2.5 py-1 rounded text-xs font-bold border border-amber-200 dark:border-amber-800/50">
-                    <Star size={12} className="fill-amber-500 text-amber-500" /> {book.rating || 0}
-                  </div>
-                  <span className="text-sm font-semibold text-blue-600 hover:underline cursor-pointer">{book.reviewsCount || 0} Reviews</span>
-                </div>
              </div>
 
              <div className="mb-8 p-6 bg-blue-50/30 dark:bg-gray-900/30 rounded-2xl border border-blue-50 dark:border-gray-800">
@@ -170,7 +164,7 @@ export default async function BookDetailsPage({ params }: { params: Promise<{ id
 
               <CartButtons book={book} />
 
-             <div className="grid grid-cols-2 sm:grid-cols-4 gap-y-6 gap-x-4 p-6 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800">
+             <div className="grid grid-cols-2 gap-y-6 gap-x-4 p-6 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800">
                <div className="flex flex-col gap-1.5">
                  <span className="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider">Publisher</span>
                  <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 line-clamp-1">{book.publisher?.name || 'N/A'}</span>
@@ -178,14 +172,6 @@ export default async function BookDetailsPage({ params }: { params: Promise<{ id
                <div className="flex flex-col gap-1.5">
                  <span className="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider">ISBN</span>
                  <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{book.isbn || 'N/A'}</span>
-               </div>
-               <div className="flex flex-col gap-1.5">
-                 <span className="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider">Edition</span>
-                 <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{book.edition || '1st'}</span>
-               </div>
-               <div className="flex flex-col gap-1.5">
-                 <span className="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider">Pages</span>
-                 <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{book.pages || 0}p</span>
                </div>
              </div>
 

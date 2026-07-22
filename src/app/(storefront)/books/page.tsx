@@ -32,9 +32,9 @@ const fetchBooks = async (params: any) => {
       return {
         data: data.books,
         meta: {
-          currentPage: data.meta.currentPage,
+          currentPage: data.meta.page,
           totalPages: data.meta.totalPages,
-          hasNextPage: data.meta.currentPage < data.meta.totalPages,
+          hasNextPage: data.meta.page < data.meta.totalPages,
           totalItems: data.meta.total
         }
       };
@@ -100,17 +100,17 @@ export default async function BooksExplorerPage({
           <div className="w-full max-w-[1200px] mx-auto p-4 sm:p-6 lg:p-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
             
             <form action="/books" method="GET" className="mb-8 flex w-full rounded-2xl border-2 border-gray-200 dark:border-gray-800 focus-within:border-blue-600 dark:focus-within:border-blue-500 overflow-hidden bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-sm transition-all relative z-20">
-              <div className="flex items-center pl-5 text-gray-400">
-                <Search size={20} />
+              <div className="flex items-center pl-4 sm:pl-5 text-gray-400">
+                <Search size={18} className="sm:w-5 sm:h-5" />
               </div>
               <input 
                 type="text" 
                 name="q" 
                 defaultValue={searchQuery || ''} 
-                placeholder="Search for books by title, keyword..." 
-                className="flex-1 bg-transparent px-4 py-3.5 outline-none text-base font-semibold text-gray-900 dark:text-white placeholder-gray-400" 
+                placeholder="Search for books..." 
+                className="flex-1 bg-transparent px-3 sm:px-4 py-3 sm:py-3.5 outline-none text-sm sm:text-base font-semibold text-gray-900 dark:text-white placeholder-gray-400 min-w-0" 
               />
-              <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3.5 transition-colors flex items-center justify-center cursor-pointer font-black text-sm uppercase tracking-wider">
+              <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-8 py-3 sm:py-3.5 transition-colors flex items-center justify-center cursor-pointer font-black text-xs sm:text-sm uppercase tracking-wider shrink-0">
                 Search
               </button>
             </form>

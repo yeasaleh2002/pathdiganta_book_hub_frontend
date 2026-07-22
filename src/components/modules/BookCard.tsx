@@ -181,7 +181,7 @@ export const BookCard = ({ book }: { book: Book }) => {
         </button>
         <button 
           onClick={handleBuyNow}
-          className="flex-1 flex items-center justify-center gap-1.5 bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-lg font-bold text-xs shadow-md transition-colors cursor-pointer"
+          className="flex-1 flex items-center justify-center gap-1.5 bg-gradient-to-r from-rose-400 to-red-500 hover:from-rose-500 hover:to-red-600 text-white py-2.5 rounded-lg font-bold text-xs shadow-sm hover:shadow-md transition-all cursor-pointer"
         >
           <Zap size={14} /> Buy Now
         </button>
