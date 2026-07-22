@@ -32,6 +32,11 @@ export const useAuth = () => {
     if (data.token) {
       localStorage.setItem('token', data.token);
       useAuthStore.getState().setLoggedIn(true);
+      if (data.user) {
+        useAuthStore.setState({ user: data.user });
+      } else {
+        useAuthStore.getState().fetchUser();
+      }
     }
     return data;
   };
@@ -53,6 +58,11 @@ export const useAuth = () => {
     if (data.token) {
       localStorage.setItem('token', data.token);
       useAuthStore.getState().setLoggedIn(true);
+      if (data.user) {
+        useAuthStore.setState({ user: data.user });
+      } else {
+        useAuthStore.getState().fetchUser();
+      }
     }
     return data;
   };
@@ -70,6 +80,11 @@ export const useAuth = () => {
     if (data.token) {
       localStorage.setItem('token', data.token);
       useAuthStore.getState().setLoggedIn(true);
+      if (data.user) {
+        useAuthStore.setState({ user: data.user });
+      } else {
+        useAuthStore.getState().fetchUser();
+      }
     }
     return data;
   };

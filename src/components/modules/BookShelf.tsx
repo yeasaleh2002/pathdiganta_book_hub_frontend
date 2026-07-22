@@ -12,6 +12,7 @@ interface BookShelfProps {
 }
 
 import { motion, Variants } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -28,6 +29,7 @@ const itemVariants: Variants = {
 
 export const BookShelf = ({ title, viewAllLink, books }: BookShelfProps) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const t = useTranslations("BookShelf");
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
@@ -49,7 +51,7 @@ export const BookShelf = ({ title, viewAllLink, books }: BookShelfProps) => {
           </h2>
           <div className="flex items-center gap-4">
             <Link href={viewAllLink} className="text-sm font-bold text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors flex items-center group">
-              View All <ChevronRight size={16} className="transform group-hover:translate-x-1 transition-transform" />
+              {t("viewAll")} <ChevronRight size={16} className="transform group-hover:translate-x-1 transition-transform" />
             </Link>
             <div className="hidden md:flex gap-2">
               <button onClick={() => scroll('left')} aria-label="Scroll left" className="p-2 rounded-full border border-gray-200 dark:border-gray-800 hover:border-blue-600 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 bg-white dark:bg-gray-900 shadow-sm transition-all active:scale-95">

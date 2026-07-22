@@ -10,8 +10,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePathname } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export const Header = () => {
+  const t = useTranslations("Header");
   const [isScrolled, setIsScrolled] = useState(false);
   const { openDrawer, items } = useCartStore();
   const { items: wishlistItems } = useWishlistStore();
@@ -90,7 +93,7 @@ export const Header = () => {
                 className="flex w-full rounded-full border border-gray-300 dark:border-gray-700 focus-within:border-blue-600 dark:focus-within:border-blue-500 overflow-hidden bg-gray-50/50 dark:bg-gray-900/50 transition-all shadow-inner"
               >
                 <select name="category" className="bg-transparent border-none text-sm px-4 py-2 outline-none text-gray-700 dark:text-gray-300 cursor-pointer hidden lg:block border-r border-gray-200 dark:border-gray-700 font-medium max-w-[180px] truncate">
-                  <option value="all">All Categories</option>
+                  <option value="all">{t("allCategories")}</option>
                   {categories.map((c: any) => (
                     <option key={c._id || c.id} value={c._id || c.id}>{c.name || c.title}</option>
                   ))}
@@ -98,7 +101,7 @@ export const Header = () => {
                 <input 
                   name="search"
                   type="text" 
-                  placeholder="Search for books, authors, publishers..." 
+                  placeholder={t("search")} 
                   className="flex-1 bg-transparent border-none px-4 py-2 outline-none text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 font-medium"
                 />
                 <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 transition-colors flex items-center justify-center cursor-pointer">
@@ -110,6 +113,7 @@ export const Header = () => {
 
           {/* Icons & Actions */}
           <div className="flex items-center gap-2 sm:gap-4">
+            <LanguageSwitcher />
             <ThemeToggle />
             
             <Link href="/dashboard?tab=wishlist" className="relative p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
@@ -155,8 +159,8 @@ export const Header = () => {
               </div>
             ) : mounted ? (
               <div className="hidden sm:flex items-center gap-1.5 ml-2">
-                <Link href="/login" className="px-5 py-2 text-sm font-black text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Login</Link>
-                <Link href="/register" className="px-5 py-2 text-sm font-black bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-transform hover:-translate-y-0.5 shadow-[0_4px_14px_0_rgba(37,99,235,0.39)]">Sign Up</Link>
+                <Link href="/login" className="px-5 py-2 text-sm font-black text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{t("login")}</Link>
+                <Link href="/register" className="px-5 py-2 text-sm font-black bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-transform hover:-translate-y-0.5 shadow-[0_4px_14px_0_rgba(37,99,235,0.39)]">{t("signUp")}</Link>
               </div>
             ) : (
               <div className="hidden sm:block w-24 h-10"></div>

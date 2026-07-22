@@ -4,12 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { User, Shield, Loader2 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import toast from 'react-hot-toast';
+import { useTranslations } from 'next-intl';
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://pathdiganta-book-hub-backend.vercel.app";
 
 export const ProfileTab = () => {
   const { user, fetchUser } = useAuthStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const t = useTranslations("Dashboard");
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -72,7 +74,7 @@ export const ProfileTab = () => {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <h2 className="text-2xl font-black text-gray-900 dark:text-white flex items-center gap-2">
-        <User className="text-blue-600" /> Profile Settings
+        <User className="text-blue-600" /> {t("profileSettings")}
       </h2>
 
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 md:p-10 shadow-sm">
@@ -80,7 +82,7 @@ export const ProfileTab = () => {
         <form onSubmit={handleSubmit} className="max-w-3xl space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
-              <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 dark:text-gray-400 mb-2">Full Legal Name</label>
+              <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 dark:text-gray-400 mb-2">{t("fullLegalName")}</label>
               <input 
                 type="text" 
                 name="name"
@@ -91,7 +93,7 @@ export const ProfileTab = () => {
               />
             </div>
             <div>
-              <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 dark:text-gray-400 mb-2">Registered Email</label>
+              <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 dark:text-gray-400 mb-2">{t("registeredEmail")}</label>
               <input 
                 type="email" 
                 disabled 
@@ -102,7 +104,7 @@ export const ProfileTab = () => {
           </div>
 
           <div>
-            <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 dark:text-gray-400 mb-2">Verified Phone Number</label>
+            <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 dark:text-gray-400 mb-2">{t("verifiedPhone")}</label>
             <input 
               type="tel" 
               name="phone"
@@ -145,7 +147,7 @@ export const ProfileTab = () => {
               className="px-10 py-4 bg-blue-600 hover:bg-blue-700 text-white font-black text-lg rounded-xl shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] transition-transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
             >
               {isSubmitting && <Loader2 size={20} className="animate-spin" />}
-              Sync Account Changes
+              {t("syncChanges")}
             </button>
           </div>
         </form>

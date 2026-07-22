@@ -3,18 +3,22 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Filter, X, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
-const SORT_OPTIONS = [
-  { value: 'newest', label: 'Newest Arrivals' },
-  { value: 'price_asc', label: 'Price: Low to High' },
-  { value: 'price_desc', label: 'Price: High to Low' },
-  { value: 'title_asc', label: 'Title: A to Z' },
-];
+
 
 export const SidebarFilter = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations("Sidebar");
   const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://pathdiganta-book-hub-backend.vercel.app";
+  
+  const SORT_OPTIONS = [
+    { value: 'newest', label: t('sortOptions.newest') },
+    { value: 'price_asc', label: t('sortOptions.price_asc') },
+    { value: 'price_desc', label: t('sortOptions.price_desc') },
+    { value: 'title_asc', label: t('sortOptions.title_asc') },
+  ];
   
   const [isOpen, setIsOpen] = useState(false);
   
@@ -115,7 +119,7 @@ export const SidebarFilter = () => {
         onClick={() => setIsOpen(true)}
         className="md:hidden flex items-center justify-center gap-2 w-full py-3 mb-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg text-sm font-semibold shadow-sm"
       >
-        <Filter size={18} /> Filters & Sorting
+        <Filter size={18} /> {t("filtersAndSorting")}
       </button>
 
       {/* Filter Sidebar overlay for mobile */}
@@ -124,14 +128,14 @@ export const SidebarFilter = () => {
       <aside className={`fixed md:sticky top-0 md:top-[80px] left-0 h-full md:h-[calc(100vh-80px)] w-72 md:w-64 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md shadow-2xl md:shadow-none border-r md:border-r border-gray-200 dark:border-gray-800 z-50 md:z-20 flex flex-col transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
         
         <div className="flex justify-between items-center p-4 border-b border-gray-100 dark:border-gray-800 shrink-0">
-          <h2 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2"><Filter size={18} /> Filters</h2>
+          <h2 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2"><Filter size={18} /> {t("filters")}</h2>
           <button onClick={() => setIsOpen(false)} className="md:hidden text-gray-500 hover:text-red-500"><X size={20} /></button>
         </div>
 
         <div className="p-4 space-y-4 flex-1 overflow-y-auto custom-scrollbar">
           {/* Sorting */}
           <div>
-            <h3 className="font-semibold text-sm text-gray-900 dark:text-white mb-2 uppercase tracking-wider text-[11px]">Sort By</h3>
+            <h3 className="font-semibold text-sm text-gray-900 dark:text-white mb-2 uppercase tracking-wider text-[11px]">{t("sortBy")}</h3>
             <select 
               value={sort}
               onChange={(e) => setSort(e.target.value)}
@@ -153,7 +157,7 @@ export const SidebarFilter = () => {
                   onClick={() => toggleSection('categories')}
                   className="flex items-center justify-between w-full py-2 font-semibold text-sm text-gray-900 dark:text-white uppercase tracking-wider text-[11px] mb-1"
                 >
-                  Categories
+                  {t("categories")}
                   {openSections.categories ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </button>
                 {openSections.categories && (
@@ -181,7 +185,7 @@ export const SidebarFilter = () => {
                   onClick={() => toggleSection('authors')}
                   className="flex items-center justify-between w-full py-2 font-semibold text-sm text-gray-900 dark:text-white uppercase tracking-wider text-[11px] mb-1"
                 >
-                  Authors
+                  {t("authors")}
                   {openSections.authors ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </button>
                 {openSections.authors && (
@@ -209,7 +213,7 @@ export const SidebarFilter = () => {
                   onClick={() => toggleSection('publishers')}
                   className="flex items-center justify-between w-full py-2 font-semibold text-sm text-gray-900 dark:text-white uppercase tracking-wider text-[11px] mb-1"
                 >
-                  Publishers
+                  {t("publishers")}
                   {openSections.publishers ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </button>
                 {openSections.publishers && (
@@ -235,10 +239,10 @@ export const SidebarFilter = () => {
 
         <div className="p-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 shrink-0 flex flex-col gap-3">
           <button onClick={onApply} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3 rounded-xl transition-colors text-sm shadow-md cursor-pointer">
-            Apply Filters
+            {t("applyFilters")}
           </button>
           <button onClick={clearAll} className="w-full bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-gray-200 dark:border-gray-700 font-bold py-2.5 rounded-xl transition-colors text-sm cursor-pointer">
-            Clear All
+            {t("clearAll")}
           </button>
         </div>
       </aside>

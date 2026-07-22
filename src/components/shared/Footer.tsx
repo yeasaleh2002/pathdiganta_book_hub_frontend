@@ -4,10 +4,14 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Globe, Hash, Link2, Monitor, MapPin, Phone, Mail } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export const Footer = () => {
   const pathname = usePathname();
-  if (pathname?.startsWith('/admin') || pathname?.startsWith('/dashboard') || pathname?.startsWith('/user') || pathname?.startsWith('/books')) return null;
+  const t = useTranslations("Footer");
+  
+  const isHiddenPage = /^\/(bn|en)?\/?(admin|dashboard|user|books)/.test(pathname || '');
+  if (isHiddenPage) return null;
 
   return (
     <footer className="w-full bg-gray-50 dark:bg-[#0a0a0a] pt-16 pb-8 border-t border-gray-200 dark:border-gray-800 transition-colors mt-auto relative overflow-hidden">
@@ -27,7 +31,7 @@ export const Footer = () => {
             />
           </Link>
           <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400 mt-2">
-            Igniting minds and expanding horizons through the power of books. Join our community of avid readers today.
+            {t("description")}
           </p>
           <div className="flex gap-4 mt-2">
             <a href="#" className="p-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-full hover:text-blue-600 hover:border-blue-600 transition-colors"><Globe size={18}/></a>
@@ -39,27 +43,27 @@ export const Footer = () => {
 
         {/* Column 2: Quick Links */}
         <div className="flex flex-col gap-4">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Company</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{t("company")}</h3>
           <ul className="flex flex-col gap-3 text-sm">
-            <li><Link href="/about" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">About Us</Link></li>
-            <li><Link href="/career" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Career</Link></li>
-            <li><Link href="/privacy-policy" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Privacy Policy</Link></li>
-            <li><Link href="/terms" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Terms of Service</Link></li>
+            <li><Link href="/about" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{t("about")}</Link></li>
+            <li><Link href="/career" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{t("career")}</Link></li>
+            <li><Link href="/privacy-policy" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{t("privacyPolicy")}</Link></li>
+            <li><Link href="/terms" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{t("terms")}</Link></li>
           </ul>
         </div>
 
         {/* Column 3: Help & Support */}
         <div className="flex flex-col gap-4">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Help & Support</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{t("helpSupport")}</h3>
           <ul className="flex flex-col gap-3 text-sm">
-            <li><Link href="/faq" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">FAQ & Support</Link></li>
-            <li><Link href="/dashboard" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Track Order</Link></li>
+            <li><Link href="/faq" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{t("faqSupport")}</Link></li>
+            <li><Link href="/dashboard" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{t("trackOrder")}</Link></li>
           </ul>
         </div>
 
         {/* Column 4: Contact Info */}
         <div className="flex flex-col gap-4">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Contact Us</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{t("contact")}</h3>
           <ul className="flex flex-col gap-4 text-sm">
             <li className="flex items-start gap-3">
               <MapPin size={18} className="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
@@ -83,12 +87,12 @@ export const Footer = () => {
 
       <div className="max-w-7xl mx-auto px-4 mt-12 pt-8 border-t border-gray-200 dark:border-gray-800 flex flex-col md:flex-row justify-center md:justify-between items-center gap-4 relative z-10">
         <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-          © {new Date().getFullYear()} Pathdigonto Book Hub. All rights reserved.
+          © {new Date().getFullYear()} Pathdigonto Book Hub. {t("rights")}.
         </p>
         <div className="flex items-center gap-2">
           <div className="px-3 py-1.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded text-xs font-bold text-gray-700 dark:text-gray-300 shadow-sm flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-            Cash On Delivery Supported
+            {t("codSupported")}
           </div>
         </div>
       </div>

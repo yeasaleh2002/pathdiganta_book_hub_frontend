@@ -2,26 +2,28 @@ import React from 'react';
 import { Gift, Zap, ShieldCheck } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 export const RewardsTab = () => {
   const { user } = useAuthStore();
   const points = user?.loyaltyPoints || 0;
   const equivalentDiscount = (points * 0.02).toFixed(2); // 1000 points = 20 Taka (1 point = 0.02 Taka)
+  const tDash = useTranslations("Dashboard");
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <h2 className="text-2xl font-black text-gray-900 dark:text-white flex items-center gap-2 mb-8">
-        <Gift className="text-amber-500" /> Loyalty & Rewards
+        <Gift className="text-amber-500" /> {tDash("loyaltyAndRewards")}
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="bg-gradient-to-br from-amber-500 to-orange-600 rounded-3xl p-10 text-white shadow-xl relative overflow-hidden">
           <Gift size={160} className="absolute -bottom-8 -right-8 opacity-20 transform -rotate-12" />
-          <p className="font-bold text-amber-100 mb-2 uppercase tracking-widest text-xs">Available Balance</p>
+          <p className="font-bold text-amber-100 mb-2 uppercase tracking-widest text-xs">{tDash("availableBalance")}</p>
           <div className="text-6xl font-black mb-4 tracking-tight">{points} <span className="text-3xl font-bold opacity-80">pts</span></div>
-          <p className="text-sm font-semibold mb-8 opacity-90 max-w-[200px] leading-relaxed">Equivalent to ৳{equivalentDiscount} discount on your next checkout.</p>
+          <p className="text-sm font-semibold mb-8 opacity-90 max-w-[200px] leading-relaxed">{tDash("equivalentTo", { equivalentDiscount })}</p>
           <button className="px-8 py-3.5 bg-white text-orange-600 font-black rounded-xl shadow-sm hover:scale-105 transition-transform">
-            Redeem Points Now
+            {tDash("redeemPointsNow")}
           </button>
         </div>
 
@@ -32,9 +34,9 @@ export const RewardsTab = () => {
               <Zap size={24} />
             </div>
             <div>
-              <h3 className="font-black text-gray-900 dark:text-white text-lg">How to earn points?</h3>
+              <h3 className="font-black text-gray-900 dark:text-white text-lg">{tDash("howToEarnPoints")}</h3>
               <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
-                Earn 60 points for every ৳1000 you spend on Pathdigonto books. Points are instantly credited upon delivery confirmation.
+                {tDash("earnPointsDescription")}
               </p>
             </div>
           </div>
@@ -46,13 +48,13 @@ export const RewardsTab = () => {
               <ShieldCheck size={24} />
             </div>
             <div>
-              <h3 className="font-black text-gray-900 dark:text-white text-lg">Company Review Bonus</h3>
+              <h3 className="font-black text-gray-900 dark:text-white text-lg">{tDash("companyReviewBonus")}</h3>
               <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
-                Leave a 5-star review for our company to instantly earn 1500 points! 4-star earns 1000 points, and up to 3-stars earn 500 points.
+                {tDash("reviewBonusDescription")}
               </p>
               <Link href="/company-review">
                 <button className="mt-4 px-5 py-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-sm font-bold rounded-lg hover:bg-emerald-200 dark:hover:bg-emerald-900/50 transition-colors">
-                  Add a Review
+                  {tDash("addAReview")}
                 </button>
               </Link>
             </div>

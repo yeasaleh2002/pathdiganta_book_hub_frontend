@@ -5,12 +5,14 @@ import { ShoppingCart, Zap } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 import { useAuthStore } from '@/store/authStore';
 import { useRouter, usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 export const CartButtons = ({ book }: { book: any }) => {
   const { addItem, openDrawer } = useCartStore();
   const { isLoggedIn } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
+  const t = useTranslations("BookCard");
 
   const handleAddToCart = async () => {
     if (!isLoggedIn) {
@@ -54,14 +56,14 @@ export const CartButtons = ({ book }: { book: any }) => {
         disabled={book.stock <= 0}
         className="flex-1 flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/40 text-blue-600 dark:text-blue-400 py-4 px-6 rounded-xl font-bold text-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        <ShoppingCart size={22} /> Add
+        <ShoppingCart size={22} /> {t("add")}
       </button>
       <button 
         onClick={handleBuyNow}
         disabled={book.stock <= 0}
         className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-rose-400 to-red-500 hover:from-rose-500 hover:to-red-600 text-white py-4 px-6 rounded-xl font-bold text-lg shadow-[0_4px_14px_0_rgba(244,63,94,0.39)] hover:shadow-[0_6px_20px_rgba(244,63,94,0.23)] transition-all hover:-translate-y-0.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        <Zap size={22} className="fill-white" /> Buy Now
+        <Zap size={22} className="fill-white" /> {t("buyNow")}
       </button>
     </div>
   );

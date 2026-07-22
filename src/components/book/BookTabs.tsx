@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Star } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface BookTabsProps {
   description: string;
@@ -10,10 +11,11 @@ interface BookTabsProps {
 
 export const BookTabs = ({ description, authorBio }: BookTabsProps) => {
   const [activeTab, setActiveTab] = useState<'desc' | 'author'>('desc');
+  const t = useTranslations("BookTabs");
 
   const tabs = [
-    { id: 'desc', label: 'Description' },
-    { id: 'author', label: 'Author Bio' },
+    { id: 'desc', label: t('description') },
+    { id: 'author', label: t('authorBio') },
   ] as const;
 
   return (
@@ -52,7 +54,7 @@ export const BookTabs = ({ description, authorBio }: BookTabsProps) => {
               {authorBio ? 'R' : '?'}
             </div>
             <div>
-              <h3 className="font-bold text-gray-900 dark:text-white mb-3 text-lg">About the Author</h3>
+              <h3 className="font-bold text-gray-900 dark:text-white mb-3 text-lg">{t("aboutAuthor")}</h3>
               <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed max-w-3xl">{authorBio}</p>
             </div>
           </div>

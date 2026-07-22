@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Edit2, Trash2, Check, Plus, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTranslations } from 'next-intl';
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://pathdiganta-book-hub-backend.vercel.app";
 
@@ -14,6 +15,8 @@ export const AddressTab = () => {
   const [addresses, setAddresses] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const tDash = useTranslations("Dashboard");
+  const tCheck = useTranslations("Checkout");
 
   const fetchAddresses = async () => {
     setIsLoading(true);
@@ -160,17 +163,17 @@ export const AddressTab = () => {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-black text-gray-900 dark:text-white flex items-center gap-2">
-          <MapPin className="text-blue-600" /> Address Book
+          <MapPin className="text-blue-600" /> {tDash("addressBook")}
         </h2>
         <button onClick={addNewAddressForm} className="px-5 py-2.5 bg-gray-900 dark:bg-gray-800 hover:bg-black dark:hover:bg-gray-700 text-white font-bold text-sm rounded-xl transition-colors flex items-center gap-2 shadow-sm cursor-pointer">
-          <Plus size={16} /> New Address
+          <Plus size={16} /> {tCheck("addNewAddress")}
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {addresses.length === 0 && !isLoading && (
           <div className="col-span-full p-8 text-center bg-gray-50 dark:bg-gray-900 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
-            <p className="text-gray-500 font-semibold">You have no saved addresses. Add one to checkout faster.</p>
+            <p className="text-gray-500 font-semibold">{tDash("noSavedAddressesCheckout")}</p>
           </div>
         )}
 
@@ -185,23 +188,23 @@ export const AddressTab = () => {
                     onClick={() => updateField(addr.id || addr._id, 'isInsideDhaka', true)}
                     className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${addr.isInsideDhaka ? 'bg-white dark:bg-gray-900 text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
                   >
-                    Inside Dhaka City
+                    {tCheck("insideDhaka")}
                   </button>
                   <button
                     onClick={() => updateField(addr.id || addr._id, 'isInsideDhaka', false)}
                     className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${!addr.isInsideDhaka ? 'bg-white dark:bg-gray-900 text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
                   >
-                    Outside Dhaka City
+                    {tCheck("outsideDhaka")}
                   </button>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="col-span-1">
-                    <label className="text-xs font-bold uppercase tracking-widest text-gray-500 block mb-1.5">Location Type</label>
+                    <label className="text-xs font-bold uppercase tracking-widest text-gray-500 block mb-1.5">{tDash("locationType")}</label>
                     <input value={addr.title || ''} onChange={(e) => updateField(addr.id || addr._id, 'title', e.target.value)} className="w-full p-2.5 border-2 border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-950 text-sm font-bold outline-none focus:border-blue-500 text-gray-900 dark:text-white transition-colors" placeholder="Home, Office..." />
                   </div>
                   <div className="col-span-1">
-                    <label className="text-xs font-bold uppercase tracking-widest text-gray-500 block mb-1.5">Phone Number</label>
+                    <label className="text-xs font-bold uppercase tracking-widest text-gray-500 block mb-1.5">{tCheck("phoneNumber")}</label>
                     <input value={addr.phone || ''} onChange={(e) => updateField(addr.id || addr._id, 'phone', e.target.value)} className="w-full p-2.5 border-2 border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-950 text-sm font-semibold outline-none focus:border-blue-500 text-gray-900 dark:text-white transition-colors" placeholder="01712..." />
                   </div>
                 </div>
@@ -209,27 +212,27 @@ export const AddressTab = () => {
                 {!addr.isInsideDhaka && (
                   <div className="grid grid-cols-2 gap-4">
                     <div className="col-span-1">
-                      <label className="text-xs font-bold uppercase tracking-widest text-gray-500 block mb-1.5">District</label>
+                      <label className="text-xs font-bold uppercase tracking-widest text-gray-500 block mb-1.5">{tCheck("district")}</label>
                       <select value={addr.district || ''} onChange={(e) => updateField(addr.id || addr._id, 'district', e.target.value)} className="w-full p-2.5 border-2 border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-950 text-sm font-semibold outline-none focus:border-blue-500 text-gray-900 dark:text-white transition-colors cursor-pointer">
-                        <option value="">Select District</option>
+                        <option value="">{tCheck("selectDistrict")}</option>
                         {DISTRICTS.map(d => <option key={d} value={d}>{d}</option>)}
                       </select>
                     </div>
                     <div className="col-span-1">
-                      <label className="text-xs font-bold uppercase tracking-widest text-gray-500 block mb-1.5">Thana</label>
+                      <label className="text-xs font-bold uppercase tracking-widest text-gray-500 block mb-1.5">{tCheck("thana")}</label>
                       <input value={addr.thana || ''} onChange={(e) => updateField(addr.id || addr._id, 'thana', e.target.value)} className="w-full p-2.5 border-2 border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-950 text-sm font-semibold outline-none focus:border-blue-500 text-gray-900 dark:text-white transition-colors" placeholder="Thana/Upazila" />
                     </div>
                   </div>
                 )}
 
                 <div className="col-span-2">
-                  <label className="text-xs font-bold uppercase tracking-widest text-gray-500 block mb-1.5">Address Line</label>
+                  <label className="text-xs font-bold uppercase tracking-widest text-gray-500 block mb-1.5">{tDash("addressLine")}</label>
                   <textarea rows={2} value={addr.addressLine || ''} onChange={(e) => updateField(addr.id || addr._id, 'addressLine', e.target.value)} className="w-full p-2.5 border-2 border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-950 text-sm font-semibold outline-none focus:border-blue-500 text-gray-900 dark:text-white resize-none transition-colors" placeholder="House/Road Details..." />
                 </div>
                 
                 <label className="flex items-center gap-2 cursor-pointer mt-2">
                   <input type="checkbox" checked={addr.isDefault || false} onChange={(e) => updateField(addr.id || addr._id, 'isDefault', e.target.checked)} className="w-4 h-4 rounded border-gray-300" />
-                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Set as Default Address</span>
+                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{tDash("setAsDefault")}</span>
                 </label>
               </div>
             ) : (
@@ -237,10 +240,10 @@ export const AddressTab = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <span className="font-black text-gray-900 dark:text-white text-xl capitalize">{addr.title || 'Address'}</span>
-                    {addr.isDefault && <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-widest border border-blue-200 dark:border-blue-800">Default</span>}
+                    {addr.isDefault && <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-widest border border-blue-200 dark:border-blue-800">{tCheck("default")}</span>}
                   </div>
                   <span className={`text-xs font-bold px-2 py-1 rounded-md ${addr.isInsideDhaka ? 'bg-emerald-100 text-emerald-700' : 'bg-purple-100 text-purple-700'}`}>
-                    {addr.isInsideDhaka ? 'Inside Dhaka City' : 'Outside Dhaka City'}
+                    {addr.isInsideDhaka ? tCheck("insideDhaka") : tCheck("outsideDhaka")}
                   </span>
                 </div>
                 
@@ -260,9 +263,9 @@ export const AddressTab = () => {
             <div className={`mt-6 pt-5 flex justify-end gap-3 border-t ${addr.isEditing ? 'border-blue-100 dark:border-gray-700' : 'border-gray-100 dark:border-gray-800'}`}>
               {addr.isEditing ? (
                 <>
-                  <button onClick={() => cancelEdit(addr.id || addr._id)} disabled={isSubmitting} className="px-5 py-2.5 text-sm font-bold text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors cursor-pointer disabled:opacity-50">Cancel</button>
+                  <button onClick={() => cancelEdit(addr.id || addr._id)} disabled={isSubmitting} className="px-5 py-2.5 text-sm font-bold text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors cursor-pointer disabled:opacity-50">{tCheck("cancel")}</button>
                   <button onClick={() => saveAddress(addr)} disabled={isSubmitting} className="px-6 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors shadow-sm flex items-center gap-2 cursor-pointer disabled:opacity-50">
-                    {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />} Save Changes
+                    {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />} {tDash("saveChanges")}
                   </button>
                 </>
               ) : (
@@ -271,7 +274,7 @@ export const AddressTab = () => {
                     <Trash2 size={18} />
                   </button>
                   <button onClick={() => toggleEdit(addr.id || addr._id)} className="px-5 py-2 text-sm font-bold text-gray-700 dark:text-gray-300 border-2 border-gray-200 dark:border-gray-700 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 rounded-xl transition-colors flex items-center gap-2 cursor-pointer">
-                    <Edit2 size={14} /> Edit Data
+                    <Edit2 size={14} /> {tDash("editData")}
                   </button>
                 </>
               )}

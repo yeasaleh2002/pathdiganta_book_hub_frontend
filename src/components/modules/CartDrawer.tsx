@@ -5,11 +5,13 @@ import { useCartStore } from '@/store/cartStore';
 import { X, Trash2, BookmarkPlus, Minus, Plus, ShoppingCart, BookmarkMinus } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 export const CartDrawer = () => {
   const { isOpen, closeDrawer, items, savedForLater, updateQuantity, removeItem, saveForLater, moveToCart, loadingItems } = useCartStore();
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+  const t = useTranslations("CartDrawer");
 
   useEffect(() => {
     setMounted(true);
@@ -41,7 +43,7 @@ export const CartDrawer = () => {
         <div className="flex justify-between items-center p-5 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950 z-10 shadow-sm">
           <div className="flex items-center gap-3">
             <ShoppingCart size={22} className="text-gray-900 dark:text-white" />
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Your Cart</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t("yourCart")}</h2>
             {totalItems > 0 && (
               <span className="bg-blue-600 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">
                 {totalItems}
@@ -63,8 +65,8 @@ export const CartDrawer = () => {
               <div className="w-24 h-24 bg-gray-50 dark:bg-gray-900 rounded-full flex items-center justify-center border border-dashed border-gray-200 dark:border-gray-700">
                  <ShoppingCart size={40} className="text-gray-300 dark:text-gray-700" />
               </div>
-              <p className="font-medium">Your cart is entirely empty.</p>
-              <button onClick={closeDrawer} className="text-blue-600 font-semibold hover:underline">Continue Shopping</button>
+              <p className="font-medium">{t("emptyCart")}</p>
+              <button onClick={closeDrawer} className="text-blue-600 font-semibold hover:underline">{t("continueShopping")}</button>
             </div>
           ) : (
             <div className="flex flex-col gap-6">
@@ -110,7 +112,7 @@ export const CartDrawer = () => {
                       </div>
 
                       <button onClick={() => saveForLater(item.id)} className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-blue-600 transition-colors bg-gray-50 hover:bg-blue-50 dark:bg-gray-800/50 dark:hover:bg-blue-900/20 px-2.5 py-1.5 rounded border border-gray-100 dark:border-gray-700">
-                        <BookmarkPlus size={14} /> Save
+                        <BookmarkPlus size={14} /> {t("save")}
                       </button>
                     </div>
                   </div>
@@ -123,7 +125,7 @@ export const CartDrawer = () => {
           {savedForLater.length > 0 && (
             <div className="mt-10 pt-6 border-t-2 border-dashed border-gray-200 dark:border-gray-800">
               <h3 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                <BookmarkPlus size={18} className="text-blue-600" /> Saved For Later ({savedForLater.length})
+                <BookmarkPlus size={18} className="text-blue-600" /> {t("savedForLater")} ({savedForLater.length})
               </h3>
               
               <div className="flex flex-col gap-4">
@@ -138,7 +140,7 @@ export const CartDrawer = () => {
                         <span className="text-sm font-bold text-gray-500 mt-1 block">৳{item.price}</span>
                       </div>
                       <button onClick={() => moveToCart(item.id)} className="w-full mt-2 py-1.5 border border-blue-200 dark:border-blue-900/50 text-blue-600 dark:text-blue-400 text-xs font-bold rounded hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors flex justify-center items-center gap-1.5">
-                        <BookmarkMinus size={14} /> Move to Cart
+                        <BookmarkMinus size={14} /> {t("moveToCart")}
                       </button>
                     </div>
                   </div>
@@ -152,16 +154,16 @@ export const CartDrawer = () => {
         {items.length > 0 && (
           <div className="p-6 bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)] z-20">
             <div className="flex justify-between items-end mb-4">
-              <span className="text-gray-600 dark:text-gray-400 font-semibold">Subtotal</span>
+              <span className="text-gray-600 dark:text-gray-400 font-semibold">{t("subtotal")}</span>
               <span className="text-3xl font-black text-gray-900 dark:text-white leading-none">৳{totalAmount}</span>
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 text-center mb-4">Shipping & taxes calculated at checkout.</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 text-center mb-4">{t("shippingNote")}</p>
             <Link 
               href="/checkout"
               onClick={closeDrawer}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white flex justify-center items-center py-4 rounded-xl font-bold text-lg shadow-lg transition-transform hover:-translate-y-0.5 active:scale-[0.98]"
             >
-              Proceed to Checkout
+              {t("checkout")}
             </Link>
           </div>
         )}

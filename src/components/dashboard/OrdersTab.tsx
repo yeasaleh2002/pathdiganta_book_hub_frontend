@@ -3,12 +3,15 @@
 import React, { useState, useEffect } from 'react';
 import { Package, Truck, Star, X, CheckCircle2, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTranslations } from 'next-intl';
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://pathdiganta-book-hub-backend.vercel.app";
 
 export const OrdersTab = () => {
   const [orders, setOrders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const tDash = useTranslations("Dashboard");
+  const tCheck = useTranslations("Checkout");
 
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [activeReviewItem, setActiveReviewItem] = useState<any>(null);
@@ -92,12 +95,12 @@ export const OrdersTab = () => {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <h2 className="text-2xl font-black text-gray-900 dark:text-white flex items-center gap-2">
-        <Package className="text-blue-600" /> Order History
+        <Package className="text-blue-600" /> {tDash("orderHistory")}
       </h2>
 
       {orders.length === 0 ? (
         <div className="p-8 text-center bg-gray-50 dark:bg-gray-900 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
-          <p className="text-gray-500 font-semibold">You haven't placed any orders yet.</p>
+          <p className="text-gray-500 font-semibold">{tDash("noOrdersPlaced")}</p>
         </div>
       ) : (
         orders.map(order => {
@@ -108,15 +111,15 @@ export const OrdersTab = () => {
             <div className="bg-gray-50 dark:bg-gray-950 p-5 border-b border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div className="flex flex-col sm:flex-row gap-4 sm:gap-10 text-sm">
                 <div>
-                  <span className="block text-gray-500 uppercase tracking-widest text-[10px] font-bold mb-1">Order Placed</span>
+                  <span className="block text-gray-500 uppercase tracking-widest text-[10px] font-bold mb-1">{tDash("orderPlaced")}</span>
                   <span className="font-black text-gray-900 dark:text-white text-base">{new Date(order.createdAt).toLocaleDateString()}</span>
                 </div>
                 <div>
-                  <span className="block text-gray-500 uppercase tracking-widest text-[10px] font-bold mb-1">Total Amount</span>
+                  <span className="block text-gray-500 uppercase tracking-widest text-[10px] font-bold mb-1">{tDash("totalAmount")}</span>
                   <span className="font-black text-gray-900 dark:text-white text-base">৳{order.grandTotal}</span>
                 </div>
                 <div>
-                  <span className="block text-gray-500 uppercase tracking-widest text-[10px] font-bold mb-1">Order ID</span>
+                  <span className="block text-gray-500 uppercase tracking-widest text-[10px] font-bold mb-1">{tDash("orderId")}</span>
                   <span className="font-black text-gray-900 dark:text-white text-base bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-2 rounded">{order.orderNumber}</span>
                 </div>
               </div>
@@ -124,12 +127,12 @@ export const OrdersTab = () => {
               <div className="w-full sm:w-auto flex justify-end">
                 {order.orderStatus === 'SHIPPED' && order.trackingLink && (
                   <button className="w-full sm:w-auto px-5 py-2.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-bold text-xs uppercase tracking-widest rounded-xl border border-blue-200 dark:border-blue-800 flex justify-center items-center gap-2 transition-colors hover:bg-blue-100 dark:hover:bg-blue-900/40 cursor-pointer">
-                    <Truck size={16} /> Track Active Order
+                    <Truck size={16} /> {tDash("trackActiveOrder")}
                   </button>
                 )}
                 {order.orderStatus === 'DELIVERED' && (
                   <span className="w-full sm:w-auto px-5 py-2.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-bold text-xs uppercase tracking-widest rounded-xl border border-emerald-200 dark:border-emerald-800/50 flex justify-center items-center gap-2">
-                    <CheckCircle2 size={16} /> Delivered
+                    <CheckCircle2 size={16} /> {tDash("delivered")}
                   </span>
                 )}
               </div>
@@ -139,8 +142,8 @@ export const OrdersTab = () => {
               {orderItems.length > 0 ? orderItems.map((item: any, index: number) => (
                 <div key={index} className="flex justify-between items-center gap-4 border-b border-gray-100 dark:border-gray-800 pb-5 last:border-0 last:pb-0">
                   <div className="flex-1">
-                    <h4 className="font-bold text-gray-900 dark:text-white text-base line-clamp-1">{item.title || item.book?.title || 'Unknown Item'}</h4>
-                    <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 mt-1">Qty: {item.quantity || item.qty || 1} × ৳{item.price || 0}</p>
+                    <h4 className="font-bold text-gray-900 dark:text-white text-base line-clamp-1">{item.title || item.book?.title || tDash("unknownItem")}</h4>
+                    <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 mt-1">{tCheck("qty")}: {item.quantity || item.qty || 1} × ৳{item.price || 0}</p>
                   </div>
                   
                   {/* order.orderStatus === 'DELIVERED' && !item.reviewed && (
@@ -158,7 +161,7 @@ export const OrdersTab = () => {
                   ) */}
                 </div>
               )) : (
-                <div className="text-sm text-gray-500">No items found for this order.</div>
+                <div className="text-sm text-gray-500">{tDash("noItemsFound")}</div>
               )}
             </div>
           </div>
@@ -171,7 +174,7 @@ export const OrdersTab = () => {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
           <div className="bg-white dark:bg-gray-900 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/50">
-              <h3 className="font-black text-xl text-gray-900 dark:text-white">Rate Your Purchase</h3>
+              <h3 className="font-black text-xl text-gray-900 dark:text-white">{tDash("rateYourPurchase")}</h3>
               <button onClick={() => setReviewModalOpen(false)} className="text-gray-400 hover:text-red-500 transition-colors p-1 bg-white dark:bg-gray-800 rounded-full shadow-sm cursor-pointer">
                 <X size={20} />
               </button>
@@ -193,19 +196,19 @@ export const OrdersTab = () => {
               </div>
 
               <div className="mb-8">
-                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wider">Detailed Feedback</label>
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wider">{tDash("detailedFeedback")}</label>
                 <textarea 
                   required 
                   value={reviewText}
                   onChange={(e) => setReviewText(e.target.value)}
                   rows={4} 
-                  placeholder="What did you like or dislike about this book? (Minimum 10 characters)" 
+                  placeholder={tDash("reviewPlaceholder")} 
                   className="w-full p-4 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white outline-none focus:border-blue-500 transition-colors resize-none text-sm font-medium"
                 />
               </div>
 
               <button type="submit" disabled={rating === 0 || isSubmittingReview} className="w-full px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white font-black text-lg rounded-xl shadow-lg transition-transform disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5 cursor-pointer flex justify-center items-center gap-2">
-                {isSubmittingReview ? <Loader2 className="animate-spin" /> : "Submit Verified Review"}
+                {isSubmittingReview ? <Loader2 className="animate-spin" /> : tDash("submitVerifiedReview")}
               </button>
             </form>
           </div>

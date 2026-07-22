@@ -2,14 +2,16 @@
 
 import React, { useState } from 'react';
 import { CreditCard, Truck, AlertCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export const PaymentStep = ({ onComplete }: { onComplete: (method: string) => void }) => {
   const [method, setMethod] = useState<'COD' | 'ONLINE'>('COD');
+  const t = useTranslations("Checkout");
 
   return (
     <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 md:p-8 shadow-sm">
       <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 mb-6 border-b border-gray-100 dark:border-gray-800 pb-4">
-        <CreditCard className="text-blue-600" /> Payment Method
+        <CreditCard className="text-blue-600" /> {t("paymentMethod")}
       </h2>
 
       <div className="flex flex-col gap-4 mb-8">
@@ -23,13 +25,13 @@ export const PaymentStep = ({ onComplete }: { onComplete: (method: string) => vo
           </div>
           <div className="flex-1">
             <div className="font-bold text-gray-900 dark:text-white flex items-center gap-2 text-lg">
-              Cash on Delivery (COD) <Truck size={18} className="text-gray-500" />
+              {t("cod")} <Truck size={18} className="text-gray-500" />
             </div>
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mt-1">Pay with cash when your order is safely delivered.</p>
+            <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mt-1">{t("codDesc")}</p>
             {method === 'COD' && (
               <div className="mt-4 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-400 text-xs font-semibold p-3 rounded-lg flex gap-2 border border-amber-200 dark:border-amber-800/50">
                 <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
-                <span>Conditional cash on delivery requires a valid phone number verification step upon driver arrival.</span>
+                <span>{t("codWarning")}</span>
               </div>
             )}
           </div>
@@ -44,7 +46,7 @@ export const PaymentStep = ({ onComplete }: { onComplete: (method: string) => vo
           onClick={() => onComplete(method)} 
           className="w-full md:w-auto px-10 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-lg rounded-xl transition-all shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.23)] hover:-translate-y-0.5"
         >
-          Confirm Order
+          {t("confirmOrder")}
         </button>
       </div>
     </div>

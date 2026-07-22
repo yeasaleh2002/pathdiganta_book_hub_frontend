@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Plus, CheckCircle2, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTranslations } from 'next-intl';
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://pathdiganta-book-hub-backend.vercel.app";
 
@@ -12,6 +13,7 @@ export const AddressStep = ({ onComplete, onAddressSelect }: { onComplete: (addr
   const [isAdding, setIsAdding] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const t = useTranslations("Checkout");
 
   const [newAddress, setNewAddress] = useState<any>({ 
     title: '', 
@@ -113,11 +115,11 @@ export const AddressStep = ({ onComplete, onAddressSelect }: { onComplete: (addr
     <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 md:p-8 shadow-sm">
       <div className="flex justify-between items-center mb-6 border-b border-gray-100 dark:border-gray-800 pb-4">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-          <MapPin className="text-blue-600" /> Shipping Information
+          <MapPin className="text-blue-600" /> {t("shippingInfo")}
         </h2>
         {!isAdding && (
           <button onClick={() => setIsAdding(true)} className="text-sm font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1 hover:underline">
-            <Plus size={16} /> Add New Address
+            <Plus size={16} /> {t("addNewAddress")}
           </button>
         )}
       </div>
@@ -130,24 +132,24 @@ export const AddressStep = ({ onComplete, onAddressSelect }: { onComplete: (addr
               onClick={() => setNewAddress({...newAddress, isInsideDhaka: true})}
               className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${newAddress.isInsideDhaka ? 'bg-white dark:bg-gray-900 text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
             >
-              Inside Dhaka City
+              {t("insideDhaka")}
             </button>
             <button
               type="button"
               onClick={() => setNewAddress({...newAddress, isInsideDhaka: false})}
               className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${!newAddress.isInsideDhaka ? 'bg-white dark:bg-gray-900 text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
             >
-              Outside Dhaka City
+              {t("outsideDhaka")}
             </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Location Title (e.g. Home, Office)</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">{t("locationTitle")}</label>
               <input type="text" value={newAddress.title} onChange={e => setNewAddress({...newAddress, title: e.target.value})} required placeholder="e.g. Home" className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Phone Number</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">{t("phoneNumber")}</label>
               <input type="tel" value={newAddress.phone} onChange={e => setNewAddress({...newAddress, phone: e.target.value})} required placeholder="01XXXXXXXXX" className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" />
             </div>
           </div>
@@ -155,29 +157,29 @@ export const AddressStep = ({ onComplete, onAddressSelect }: { onComplete: (addr
           {!newAddress.isInsideDhaka && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">District</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">{t("district")}</label>
                 <select value={newAddress.district} onChange={e => setNewAddress({...newAddress, district: e.target.value})} required className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition-shadow cursor-pointer">
-                  <option value="">Select District</option>
+                  <option value="">{t("selectDistrict")}</option>
                   {[
                     "Bagerhat", "Bandarban", "Barguna", "Barishal", "Bhola", "Bogura", "Brahmanbaria", "Chandpur", "Chapai Nawabganj", "Chattogram", "Chuadanga", "Cox's Bazar", "Cumilla", "Dinajpur", "Faridpur", "Feni", "Gaibandha", "Gazipur", "Gopalganj", "Habiganj", "Jamalpur", "Jashore", "Jhalokati", "Jhenaidah", "Joypurhat", "Khagrachari", "Khulna", "Kishoreganj", "Kurigram", "Kushtia", "Lakshmipur", "Lalmonirhat", "Madaripur", "Magura", "Manikganj", "Meherpur", "Moulvibazar", "Munshiganj", "Mymensingh", "Naogaon", "Narail", "Narayanganj", "Narsingdi", "Natore", "Netrokona", "Nilphamari", "Noakhali", "Pabna", "Panchagarh", "Patuakhali", "Pirojpur", "Rajbari", "Rajshahi", "Rangamati", "Rangpur", "Satkhira", "Shariatpur", "Sherpur", "Sirajgonj", "Sunamganj", "Sylhet", "Tangail", "Thakurgaon"
                   ].map(d => <option key={d} value={d}>{d}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Thana / Upazila</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">{t("thana")}</label>
                 <input type="text" value={newAddress.thana} onChange={e => setNewAddress({...newAddress, thana: e.target.value})} required placeholder="Thana" className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" />
               </div>
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Detailed Address (House, Road, Area)</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">{t("detailedAddress")}</label>
             <textarea value={newAddress.addressLine} onChange={e => setNewAddress({...newAddress, addressLine: e.target.value})} required rows={3} placeholder="Please provide exact location details..." className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition-shadow resize-none" />
           </div>
           <div className="flex justify-end gap-3 pt-2">
-            <button type="button" disabled={isSubmitting} onClick={() => setIsAdding(false)} className="px-6 py-2.5 text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors disabled:opacity-50">Cancel</button>
+            <button type="button" disabled={isSubmitting} onClick={() => setIsAdding(false)} className="px-6 py-2.5 text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors disabled:opacity-50">{t("cancel")}</button>
             <button type="submit" disabled={isSubmitting} className="px-6 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm transition-colors flex items-center gap-2 disabled:opacity-50">
-              {isSubmitting && <Loader2 size={16} className="animate-spin" />} Save Address
+              {isSubmitting && <Loader2 size={16} className="animate-spin" />} {t("saveAddress")}
             </button>
           </div>
         </form>
@@ -187,9 +189,9 @@ export const AddressStep = ({ onComplete, onAddressSelect }: { onComplete: (addr
         </div>
       ) : addresses.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-gray-500 dark:text-gray-400 mb-4">You don't have any saved addresses yet.</p>
+          <p className="text-gray-500 dark:text-gray-400 mb-4">{t("noSavedAddresses")}</p>
           <button onClick={() => setIsAdding(true)} className="px-6 py-2.5 text-sm font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors">
-            Add Your First Address
+            {t("addFirstAddress")}
           </button>
         </div>
       ) : (
@@ -203,7 +205,7 @@ export const AddressStep = ({ onComplete, onAddressSelect }: { onComplete: (addr
               {selectedId === (addr.id || addr._id) && <CheckCircle2 className="absolute top-4 right-4 text-blue-600" size={24} />}
               <div className="font-bold text-gray-900 dark:text-white mb-1.5 flex items-center gap-2">
                 {addr.title} 
-                {addr.isDefault && <span className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">Default</span>}
+                {addr.isDefault && <span className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">{t("default")}</span>}
               </div>
               <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">{addr.phone}</div>
               <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed pr-8">{addr.addressLine}</div>
@@ -220,7 +222,7 @@ export const AddressStep = ({ onComplete, onAddressSelect }: { onComplete: (addr
             disabled={!selectedId}
             className="w-full md:w-auto px-10 py-3.5 bg-gray-900 hover:bg-black dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold rounded-xl transition-colors shadow-sm disabled:opacity-50"
           >
-            Proceed to Payment
+            {t("proceedToPayment")}
           </button>
         </div>
       )}

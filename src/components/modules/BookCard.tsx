@@ -8,6 +8,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useWishlistStore } from '@/store/wishlistStore';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 interface Book {
   id?: string;
@@ -30,6 +31,7 @@ export const BookCard = ({ book }: { book: Book }) => {
   const { isInWishlist, addItem: addToWishlist, removeItem: removeFromWishlist } = useWishlistStore();
   const router = useRouter();
   const pathname = usePathname();
+  const t = useTranslations("BookCard");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -132,7 +134,7 @@ export const BookCard = ({ book }: { book: Book }) => {
                 ? 'bg-red-50 dark:bg-red-900/30 text-red-500 hover:bg-red-100' 
                 : 'bg-white/90 dark:bg-gray-800/90 text-gray-400 hover:text-red-500 hover:bg-white'
             } backdrop-blur-sm opacity-100 sm:opacity-0 group-hover:opacity-100 focus:opacity-100 cursor-pointer`}
-            aria-label={isWished ? "Remove from wishlist" : "Add to wishlist"}
+            aria-label={isWished ? t("removeFromWishlist") : t("addToWishlist")}
           >
             <Heart size={16} className={isWished ? "fill-red-500" : ""} />
           </button>
@@ -151,13 +153,13 @@ export const BookCard = ({ book }: { book: Book }) => {
           
           {authorName && (
              <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mt-1.5 line-clamp-1">
-               <span className="text-gray-500 dark:text-gray-500 font-medium">Author:</span> {authorName}
+               <span className="text-gray-500 dark:text-gray-500 font-medium">{t("author")}</span> {authorName}
              </span>
           )}
           
           {publisherName && (
              <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 mt-0.5 line-clamp-1">
-               <span className="text-gray-500 dark:text-gray-500 font-medium">Publisher:</span> {publisherName}
+               <span className="text-gray-500 dark:text-gray-500 font-medium">{t("publisher")}</span> {publisherName}
              </span>
           )}
           
@@ -177,13 +179,13 @@ export const BookCard = ({ book }: { book: Book }) => {
           onClick={handleAddToCart}
           className="flex-1 flex items-center justify-center gap-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/40 text-blue-600 dark:text-blue-400 py-2.5 rounded-lg font-bold text-xs transition-colors cursor-pointer"
         >
-          <ShoppingCart size={14} /> Add
+          <ShoppingCart size={14} /> {t("add")}
         </button>
         <button 
           onClick={handleBuyNow}
           className="flex-1 flex items-center justify-center gap-1.5 bg-gradient-to-r from-rose-400 to-red-500 hover:from-rose-500 hover:to-red-600 text-white py-2.5 rounded-lg font-bold text-xs shadow-sm hover:shadow-md transition-all cursor-pointer"
         >
-          <Zap size={14} /> Buy Now
+          <Zap size={14} /> {t("buyNow")}
         </button>
       </div>
 
