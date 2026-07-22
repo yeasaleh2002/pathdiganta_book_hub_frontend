@@ -19,11 +19,26 @@ export const Header = () => {
   const { logout } = useAuth();
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+  const [categories, setCategories] = useState<any[]>([]);
 
   useEffect(() => {
     setMounted(true);
     checkLoginStatus();
     fetchUser();
+    const fetchCategories = async () => {
+      try {
+        const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://pathdiganta-book-hub-backend.vercel.app";
+        const res = await fetch(`${API_URL}/api/v1/categories`);
+        const data = await res.json();
+        if (data.success) {
+          setCategories(data.categories || data.data || []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories", error);
+      }
+    };
+    fetchCategories();
+
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 30);
     };
@@ -63,17 +78,21 @@ export const Header = () => {
                 e.preventDefault();
                 const formData = new FormData(e.currentTarget);
                 const query = formData.get('search');
-                if (query) {
-                  window.location.href = `/books?query=${encodeURIComponent(query as string)}`;
-                }
+                const category = formData.get('category');
+                
+                const params = new URLSearchParams();
+                if (query) params.set('search', query as string);
+                if (category && category !== 'all') params.set('category', category as string);
+                
+                window.location.href = `/books?${params.toString()}`;
               }}
               className="flex w-full rounded-full border border-gray-300 dark:border-gray-700 focus-within:border-blue-600 dark:focus-within:border-blue-500 overflow-hidden bg-gray-50/50 dark:bg-gray-900/50 transition-all shadow-inner"
             >
-              <select className="bg-transparent border-none text-sm px-4 py-2 outline-none text-gray-700 dark:text-gray-300 cursor-pointer hidden lg:block border-r border-gray-200 dark:border-gray-700 font-medium">
+              <select name="category" className="bg-transparent border-none text-sm px-4 py-2 outline-none text-gray-700 dark:text-gray-300 cursor-pointer hidden lg:block border-r border-gray-200 dark:border-gray-700 font-medium max-w-[180px] truncate">
                 <option value="all">All Categories</option>
-                <option value="fiction">Fiction</option>
-                <option value="academic">Academic</option>
-                <option value="islamic">Islamic</option>
+                {categories.map((c: any) => (
+                  <option key={c._id || c.id} value={c._id || c.id}>{c.name || c.title}</option>
+                ))}
               </select>
               <input 
                 name="search"

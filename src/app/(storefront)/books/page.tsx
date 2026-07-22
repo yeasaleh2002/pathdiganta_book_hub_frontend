@@ -65,7 +65,7 @@ const BookGridResults = async ({ searchParams }: { searchParams: any }) => {
 
   return (
     <>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-4 md:gap-6">
         {result.data.map((book: any) => (
           <BookCard key={book.id || book._id} book={{...book, id: book.id || book._id}} />
         ))}
@@ -88,42 +88,32 @@ export default async function BooksExplorerPage({
   const searchQuery = resolvedParams.search as string;
 
   return (
-    <div className="max-w-[1400px] mx-auto px-4 py-8">
+    <div className="w-full min-h-[calc(100vh-80px)] bg-gray-50 dark:bg-[#0a0a0a] relative flex flex-col md:flex-row items-start">
+        {/* Abstract Background Elements */}
+        <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-sky-600/10 to-transparent dark:from-sky-900/20 pointer-events-none z-0" />
+        <div className="absolute top-40 right-0 w-96 h-96 bg-sky-500/10 dark:bg-sky-600/10 rounded-full blur-3xl pointer-events-none z-0" />
       
-      {/* Premium Header */}
-      <div className="mb-10 relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-800 p-8 md:p-12 shadow-lg">
-        <div className="relative z-10">
-          <h1 className="text-3xl md:text-5xl font-black text-white mb-4 tracking-tight">
-            {searchQuery ? (
-              <>Search Results for <span className="text-blue-200">"{searchQuery}"</span></>
-            ) : "Explore Our Collection"}
-          </h1>
-          <p className="text-blue-100/90 text-lg md:text-xl max-w-2xl font-medium">
-            Discover thousands of hand-picked books across various categories, trusted authors, and top publishers.
-          </p>
-        </div>
-        {/* Decorative elements */}
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-blue-400/20 rounded-full blur-2xl pointer-events-none"></div>
-      </div>
-
-      <div className="flex flex-col md:flex-row gap-8 items-start relative">
         {/* Sidebar Filter Component */}
-        <Suspense fallback={<div className="w-72 md:w-64 h-96 bg-gray-50 dark:bg-gray-900 animate-pulse rounded-xl hidden md:block"></div>}>
+        <Suspense fallback={<div className="w-72 md:w-64 h-96 bg-gray-50 dark:bg-gray-900 animate-pulse rounded-xl hidden md:block z-10"></div>}>
           <SidebarFilter />
         </Suspense>
         
         {/* Main Grid Content wrapped in Suspense for loading state shifts */}
-        <div className="flex-1 w-full min-w-0">
-          <Suspense 
-            key={JSON.stringify(resolvedParams)} 
-            fallback={<GridSkeleton />}
-          >
-            <BookGridResults searchParams={resolvedParams} />
-          </Suspense>
+        <div className="flex-1 w-full min-w-0 relative z-10">
+          <div className="w-full max-w-[1200px] mx-auto p-4 sm:p-6 lg:p-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+            {searchQuery && (
+              <h1 className="text-2xl font-black text-gray-900 dark:text-white mb-6">
+                Search Results for <span className="text-blue-600">"{searchQuery}"</span>
+              </h1>
+            )}
+            <Suspense 
+              key={JSON.stringify(resolvedParams)} 
+              fallback={<GridSkeleton />}
+            >
+              <BookGridResults searchParams={resolvedParams} />
+            </Suspense>
+          </div>
         </div>
-      </div>
-      
     </div>
   );
 }
